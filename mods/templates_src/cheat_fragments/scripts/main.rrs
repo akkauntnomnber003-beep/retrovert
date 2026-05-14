@@ -1,0 +1,32 @@
+-- cheat_fragments
+-- Набор полезных «чит-фрагментов». Закомментируйте те, которые не нужны.
+
+chat_log("Чит-фрагменты активированы.")
+
+-- 1. +99 монет
+state.add_coins(99)
+
+-- 2. +9 ключей и бомб
+state.add_keys(9)
+state.add_bombs(9)
+
+-- 3. До максимума жизни
+state.heal(state.get("player_hp_max"))
+
+-- 4. Бешеный урон
+state.set("player_damage", 99.0)
+
+-- 5. Очень быстрая стрельба
+state.set("player_tear_rate", 12.0)
+
+-- 6. Большой радиус слёз
+state.set("player_tear_range", 1200.0)
+
+-- 7. Авто-аим (находит ближайшего врага)
+state.set("auto_aim", true)
+
+-- 8. Очень быстрое движение
+state.set("player_speed", 320.0)
+
+-- 9. Удачное везение
+state.set("player_luck", 5.0)

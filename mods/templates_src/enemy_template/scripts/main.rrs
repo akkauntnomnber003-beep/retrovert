@@ -1,0 +1,26 @@
+-- enemy_template
+-- Спавнит «Болтуна» в каждой новой комнате и общается через чат.
+
+let SAYINGS = [
+    "Я тебя вижу!",
+    "Беги, пока можешь.",
+    "Не подходи.",
+    "Слышишь шорох?",
+    "Я слабее, чем кажусь."
+]
+
+on("room_entered") func(pos)
+    let p = player()
+    if p != null then
+        let spot = math.vec(p.x + 220, p.y)
+        entities.spawn_enemy("fly", spot)
+        let line = SAYINGS[math.randi_range(0, 4)]
+        chat_enemy("Болтун", line, "fly")
+    end
+end
+
+on("enemy_died") func(pos, type)
+    if type == "fly" then
+        chat_enemy("Болтун", "Аргх...", "fly")
+    end
+end

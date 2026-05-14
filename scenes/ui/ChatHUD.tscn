@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/ChatHUD.gd" id="1_chat"]
+
+[node name="ChatHUD" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = 8.0
+offset_right = -8.0
+offset_top = 8.0
+offset_bottom = 188.0
+mouse_filter = 2
+script = ExtResource("1_chat")

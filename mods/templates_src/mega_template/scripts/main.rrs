@@ -1,0 +1,144 @@
+-- ============================================================================
+-- Mega Template — Dark Rift Suite
+-- ----------------------------------------------------------------------------
+-- Это эталонный мод. Он показывает почти все возможности RatScript:
+--   * новый пассивный предмет
+--   * AI-чат NPC через OpenRouter
+--   * подписки на события (enemy_died, boss_died, room_entered)
+--   * сохранение статистики в файл
+--   * спавн дружелюбных мух-помощников
+--   * периодические сообщения "Тёмного Голоса" с AI-фразами
+--   * новое читерское оружие (через item с stats.tear_rate / tear_speed)
+-- ============================================================================
+
+-- ── Состояние мода ───────────────────────────────────────────────────────────
+var tick_t       = 0.0
+var voice_t      = 0.0
+var kills_total  = 0
+var fallback_quips = [
+    "Они даже не услышали тебя.",
+    "Тень падает быстрее, чем эхо.",
+    "Ещё один. Сколько их у тебя в кармане?",
+    "Слышишь? Это шаги, которых больше нет.",
+    "Кровь — это просто чернила времени.",
+]
+
+-- ── Утилита: случайная фраза из массива ──────────────────────────────────────
+func pick(arr)
+    let i = randi(0, len(arr) - 1)
+    return arr[i]
+end
+
+-- ── on_load: предмет + загрузка статистики ───────────────────────────────────
+on_load = func()
+    chat_log("Mega Template запущен. Доступны: предмет, AI-чат, мухи.")
+
+    -- 1) Новый пассивный предмет: Crimson Lens
+    item({
+        id          = "crimson_lens",
+        name        = "Crimson Lens",
+        description = "+1 урон, +25% темп стрельбы, +0.5 удачи. Видит врагов через стены.",
+        stats = {
+            player_damage = 1.0,
+            tear_rate     = 0.25,
+            luck          = 0.5
+        }
+    })
+    -- сразу выдаём игроку как доказательство:
+    grant("crimson_lens")
+
+    -- 2) Загружаем сохранённую статистику из песочницы мода
+    let raw = file_read("kills.json", "0")
+    kills_total = json_parse(raw)
+    if kills_total == nil then
+        kills_total = 0
+    end
+    chat_log("Всего убито за все запуски: " .. str(kills_total))
+end
+
+-- ── on_tick: периодические задачи ────────────────────────────────────────────
+on_tick = func(delta)
+    tick_t  = tick_t  + delta
+    voice_t = voice_t + delta
+
+    -- Каждые 6 секунд: дружелюбные мухи (если их меньше 4) — комментируют
+    if tick_t >= 6.0 then
+        tick_t = 0.0
+        let flies = enemies()
+        if len(flies) < 4 then
+            -- Спавн дружелюбного хелпера рядом с игроком.
+            let p = player().position + vec(randi(-64, 64), randi(-64, 64))
+            spawn("res://scenes/enemies/Fly.tscn", p)
+            chat_enemy("Тёмная муха", "Я с тобой, носитель.", "darkrift_fly")
+        end
+    end
+
+    -- Каждые 12 секунд: Dark Rift NPC говорит AI-фразу
+    if voice_t >= 12.0 then
+        voice_t = 0.0
+        if api_has_key("openrouter") then
+            ai_chat_as(
+                "Скажи одну мрачную короткую фразу-предсказание (≤90 знаков), на русском, без кавычек.",
+                "Dark Rift", "darkrift_voice"
+            )
+        else
+            chat_enemy("Dark Rift", pick(fallback_quips), "darkrift_voice")
+        end
+    end
+end
+
+-- ── События ─────────────────────────────────────────────────────────────────
+
+-- Каждый убитый враг: считаем, иногда роняем монетку
+on("enemy_died", func(pos, enemy_type)
+    kills_total = kills_total + 1
+    file_write("kills.json", str(kills_total))
+    if randi(0, 99) < 25 then
+        state.add_coins(1)
+    end
+    chat_log("Враг " .. enemy_type .. " пал. Всего: " .. str(kills_total))
+end)
+
+-- Босс умер: лут, AI-фраза, дополнительные монеты
+on("boss_died", func(_pos)
+    state.add_coins(15)
+    state.add_bombs(2)
+    state.add_keys(1)
+    chat_item("Crimson Lens", "Пульсирует красным.", "crimson_lens_item")
+    if api_has_key("openrouter") then
+        ai_chat_as(
+            "Опиши падение босса одной злорадной короткой фразой (≤80 символов).",
+            "Тёмный Голос", "darkrift_voice"
+        )
+    else
+        chat_enemy("Тёмный Голос", pick(fallback_quips), "darkrift_voice")
+    end
+end)
+
+-- Вход в магазин: подсказка
+on("room_entered", func(_room_pos, room_type)
+    if room_type == 3 then
+        chat_log("Совет: предметы в магазине стоят дороже на верхних этажах.")
+    elseif room_type == 5 then
+        chat_log("Это секретная комната. Загляни в углы.")
+    end
+end)
+
+-- Сетевые ответы — для отладки видим, какие модели приходят
+on("net_response", func(rid, code, body)
+    if code != 200 then
+        chat_error("net_response: HTTP " .. str(code))
+    end
+end)
+
+-- Получили урон — мухи "плачут"
+on("player_damaged", func(amount)
+    chat_enemy("Тёмная муха", "Носитель ранен! (-" .. str(amount) .. ")",
+        "darkrift_fly")
+end)
+
+-- ── on_unload: всё корректно прибрать ────────────────────────────────────────
+on_unload = func()
+    file_write("kills.json", str(kills_total))
+    chat_log("Mega Template выгружен. Сохранено: " .. str(kills_total))
+end

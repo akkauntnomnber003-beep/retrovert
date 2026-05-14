@@ -1,0 +1,38 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/GameOver.gd" id="1_go"]
+
+[node name="GameOver" type="Control"]
+script = ExtResource("1_go")
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Bg" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.08, 0.04, 0.04, 1)
+
+[node name="Center" type="CenterContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBox" type="VBoxContainer" parent="Center"]
+custom_minimum_size = Vector2(400, 0)
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="Center/VBox"]
+text = "Конец забега"
+horizontal_alignment = 1
+
+[node name="StatsLabel" type="Label" parent="Center/VBox"]
+custom_minimum_size = Vector2(400, 0)
+text = ""
+horizontal_alignment = 1
+
+[node name="RetryButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(400, 64)
+text = "Перезапустить"
+
+[node name="MenuButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(400, 64)
+text = "В главное меню"

@@ -1,0 +1,11 @@
+{
+  "id": "extra_starts",
+  "name": "Extra Starts",
+  "version": "1.0.0",
+  "author": "RatRovert Team",
+  "description": "Регистрирует пассивный предмет 'Rat Booster' (+30% урон, +20% скорость) и выдаёт его в начале забега.",
+  "entry": "scripts/main.rrs",
+  "tags": ["items", "buff"],
+  "dependencies": [],
+  "uuid": ""
+}
