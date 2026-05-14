@@ -76,7 +76,11 @@ func _build_floor() -> void:
 
 
 func _build_walls() -> void:
-	# Top wall band
+	# Top wall band — uses two sprite layers:
+	#   * normal layer (drawn behind player so player's feet pass *over* the
+	#     wall base when y > wall.bottom)
+	#   * overhang layer (z_index = 100) which always draws on top so the
+	#     top half of the player's body can slide behind the wall visually.
 	if wall_top_texture:
 		var w: int = wall_top_texture.get_width()
 		var ratio: float = TILE_SIZE / float(w)
@@ -86,6 +90,8 @@ func _build_walls() -> void:
 			s.centered = false
 			s.scale = Vector2(ratio, ratio)
 			s.position = Vector2(x, 0)
+			s.z_index = 100  # Top wall draws above the player while
+			s.z_as_relative = false  # the player overlaps its lower half.
 			wall_tiles.add_child(s)
 			var s2 := Sprite2D.new()
 			s2.texture = wall_top_texture
@@ -116,27 +122,37 @@ func _build_walls() -> void:
 
 
 func _create_wall_collider() -> void:
+	# Colliders are intentionally smaller than the visual wall band so the
+	# player can overlap the bottom half of the top wall (Isaac-style: head
+	# slides behind the wall). The overhang sprites have z_index=100 so
+	# they always draw above the player.
+	const OVERHANG_PX := 24
 	var sb := StaticBody2D.new()
 	sb.name = "WallCollider"
 	sb.collision_layer = (1 << 0) | (1 << 6)
 	sb.collision_mask = 0
-	# 4 collision shapes: top, bottom, left, right
-	for params in [
-		Vector2(ROOM_W * 0.5, PLAYFIELD_TOP * 0.5),
-		Vector2(ROOM_W * 0.5, ROOM_H - PLAYFIELD_TOP * 0.5),
-		Vector2(PLAYFIELD_LEFT * 0.5, ROOM_H * 0.5),
-		Vector2(ROOM_W - PLAYFIELD_LEFT * 0.5, ROOM_H * 0.5),
-	]:
-		var c := CollisionShape2D.new()
-		var rect := RectangleShape2D.new()
-		if params.x == ROOM_W * 0.5:
-			rect.size = Vector2(ROOM_W, PLAYFIELD_TOP)
-		else:
-			rect.size = Vector2(PLAYFIELD_LEFT, ROOM_H)
-		c.shape = rect
-		c.position = params
-		sb.add_child(c)
+	var top_h: float = max(8.0, PLAYFIELD_TOP - OVERHANG_PX)
+	var bot_h: float = PLAYFIELD_TOP
+	# Top wall — shorter so the player can poke their head behind it.
+	_add_rect(sb, Vector2(ROOM_W * 0.5, top_h * 0.5), Vector2(ROOM_W, top_h))
+	# Bottom wall — full height.
+	_add_rect(sb, Vector2(ROOM_W * 0.5, ROOM_H - bot_h * 0.5),
+		Vector2(ROOM_W, bot_h))
+	# Sides — full height.
+	_add_rect(sb, Vector2(PLAYFIELD_LEFT * 0.5, ROOM_H * 0.5),
+		Vector2(PLAYFIELD_LEFT, ROOM_H))
+	_add_rect(sb, Vector2(ROOM_W - PLAYFIELD_LEFT * 0.5, ROOM_H * 0.5),
+		Vector2(PLAYFIELD_LEFT, ROOM_H))
 	add_child(sb)
+
+
+func _add_rect(parent: Node, pos: Vector2, size: Vector2) -> void:
+	var c := CollisionShape2D.new()
+	var rect := RectangleShape2D.new()
+	rect.size = size
+	c.shape = rect
+	c.position = pos
+	parent.add_child(c)
 
 
 func _setup_doors() -> void:

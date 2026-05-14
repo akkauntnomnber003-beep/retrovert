@@ -24,6 +24,8 @@ boot_splash/fullsize=true
 
 GameState="*res://scripts/autoloads/GameState.gd"
 EventBus="*res://scripts/autoloads/EventBus.gd"
+ApiKeys="*res://scripts/autoloads/ApiKeys.gd"
+NetAPI="*res://scripts/autoloads/NetAPI.gd"
 ChatLog="*res://scripts/autoloads/ChatLog.gd"
 RoomGen="*res://scripts/autoloads/RoomGen.gd"
 AudioManager="*res://scripts/autoloads/AudioManager.gd"

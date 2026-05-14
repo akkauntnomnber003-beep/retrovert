@@ -14,7 +14,7 @@ var jump_duration: float = 0.8
 
 
 func _on_ready_override() -> void:
-	max_hp = 60.0 * floor_scale
+	max_hp = 60.0  # EnemyBase scales by floor_scale after this returns.
 	current_hp = max_hp
 	move_speed = 0.0
 	contact_damage = 2.0

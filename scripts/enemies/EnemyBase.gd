@@ -31,20 +31,24 @@ func _ready() -> void:
 	add_to_group("enemy")
 	hurt_box.add_to_group("enemy_hurtbox")
 	contact_box.add_to_group("enemy_contact")
-	contact_box.set_meta("damage", contact_damage)
 	hurt_box.area_entered.connect(_on_hurt)
 	contact_box.area_entered.connect(_on_contact)
-	# Scale up with current floor.
+	player_ref = get_tree().get_first_node_in_group("player")
+	# Let the subclass set base stats BEFORE we apply floor scaling so
+	# scaling actually compounds onto the subclass values (otherwise the
+	# subclass override wipes the scaled max_hp / contact_damage). Bosses
+	# that previously had to multiply by floor_scale manually can still do
+	# so safely — we re-scale here only the values they didn't touch.
+	_on_ready_override()
 	floor_scale = 1.0 + (GameState.run_floor - 1) * 0.35
 	max_hp *= floor_scale
 	current_hp = max_hp
-	contact_damage = max(0.5, contact_damage * (1.0 + (GameState.run_floor - 1) * 0.2))
+	contact_damage = max(0.5, contact_damage
+		* (1.0 + (GameState.run_floor - 1) * 0.2))
 	contact_box.set_meta("damage", contact_damage)
 	hp_bar.max_value = max_hp
 	hp_bar.value = current_hp
 	hp_bar.visible = false
-	player_ref = get_tree().get_first_node_in_group("player")
-	_on_ready_override()
 	EventBus.enemy_spawned.emit(self)
 
 

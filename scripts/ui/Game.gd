@@ -113,6 +113,11 @@ func _on_boss_died(_pos: Vector2i) -> void:
 	if GameState.run_floor > 3:
 		get_tree().change_scene_to_file("res://scenes/ui/WinScreen.tscn")
 	else:
+		# Clear per-floor room state so newly generated rooms on the next
+		# floor don't inherit the "already cleared" flag from the prior
+		# floor's identical Vector2i positions.
+		GameState.cleared_rooms.clear()
+		GameState.visited_rooms.clear()
 		EventBus.floor_entered.emit(GameState.run_floor)
 		get_tree().reload_current_scene()
 

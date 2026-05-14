@@ -7,7 +7,8 @@ var base_speed: float = 90.0
 
 
 func _on_ready_override() -> void:
-	max_hp = 40.0 * floor_scale
+	# EnemyBase scales by floor_scale after this returns, so set base stats.
+	max_hp = 40.0
 	current_hp = max_hp
 	move_speed = base_speed
 	contact_damage = 1.5

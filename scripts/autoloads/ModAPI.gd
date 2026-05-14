@@ -13,6 +13,9 @@ var entities: Object
 var math: Object
 var chat: Object
 var files: Object
+var net: Object
+var keys: Object
+var ai: Object
 
 
 func _ready() -> void:
@@ -24,6 +27,9 @@ func _ready() -> void:
 	math = MathAPI.new(self)
 	chat = ChatAPI.new(self)
 	files = FilesAPI.new(self)
+	net = NetAPISub.new(self)
+	keys = KeysAPISub.new(self)
+	ai = AIApiSub.new(self)
 
 
 # ──────────────────────────────────────────────────────────────────────────
@@ -292,3 +298,46 @@ class FilesAPI:
 			return false
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 		return true
+
+
+class NetAPISub:
+	var _api: Node
+	func _init(api: Node) -> void: _api = api
+
+	func get_(url: String, headers: PackedStringArray = PackedStringArray()) -> int:
+		return NetAPI.get_async(url, headers)
+
+	func post(url: String, body: String,
+			headers: PackedStringArray = PackedStringArray()) -> int:
+		return NetAPI.post_async(url, body, headers)
+
+	func cancel(rid: int) -> void: NetAPI.cancel(rid)
+
+
+class KeysAPISub:
+	var _api: Node
+	func _init(api: Node) -> void: _api = api
+
+	func get_key(service: String, name: String = "default") -> String:
+		return ApiKeys.get_key(service, name)
+
+	func set_key(service: String, name: String, value: String) -> void:
+		ApiKeys.set_key(service, name, value)
+
+	func has(service: String, name: String = "default") -> bool:
+		return ApiKeys.has(service, name)
+
+	func list_services() -> Array: return ApiKeys.list_services()
+
+
+class AIApiSub:
+	var _api: Node
+	func _init(api: Node) -> void: _api = api
+
+	func chat(prompt: String, model: String = "") -> int:
+		return NetAPI.ai_chat_text(prompt, model)
+
+	func chat_to(prompt: String, sender: String, sender_id: String,
+			model: String = "") -> int:
+		return NetAPI.ai_chat_text(prompt, model, func(_rid, _code, text):
+			ChatLog.send(sender, text, "info", sender_id))

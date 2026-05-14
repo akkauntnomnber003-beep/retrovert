@@ -30,8 +30,7 @@ func _on_docs() -> void:
 
 
 func _on_settings() -> void:
-	# Settings reuses a simple in-place panel; placeholder for now.
-	pass
+	get_tree().change_scene_to_file("res://scenes/ui/Settings.tscn")
 
 
 func _on_quit() -> void:

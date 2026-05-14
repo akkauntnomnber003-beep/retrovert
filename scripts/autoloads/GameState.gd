@@ -58,6 +58,7 @@ var deaths_total: int = 0
 var settings: Dictionary = {
 	"music_volume": 0.8,
 	"sfx_volume": 1.0,
+	"volume": 0.8,
 	"touch_controls": true,
 	"show_fps": false,
 	"vibrate": true,
@@ -65,7 +66,19 @@ var settings: Dictionary = {
 	"auto_aim": false,
 	"show_aim": true,
 	"chat_visible": true,
+	"lighting": true,
+	"ysort": true,
 }
+
+
+func get_setting(key: String, default = null):
+	return settings.get(key, default)
+
+
+func set_setting(key: String, value) -> void:
+	settings[key] = value
+	if key == "auto_aim":
+		auto_aim = bool(value)
 
 # ── SIGNALS ───────────────────────────────────────────────────────────────
 signal hp_changed(current: float, maximum: float, soul: float)

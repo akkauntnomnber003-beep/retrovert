@@ -1,0 +1,212 @@
+[gd_scene load_steps=2 format=3 uid="uid://crsettings1"]
+
+[ext_resource type="Script" path="res://scripts/ui/Settings.gd" id="1_settings"]
+
+[node name="Settings" type="Control"]
+script = ExtResource("1_settings")
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Bg" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.07, 0.05, 0.04, 1)
+
+[node name="TopBar" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 56.0
+
+[node name="HBox" type="HBoxContainer" parent="TopBar"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BackButton" type="Button" parent="TopBar/HBox"]
+layout_mode = 2
+text = "← Назад"
+
+[node name="Title" type="Label" parent="TopBar/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "  Настройки"
+
+[node name="Scroll" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 64.0
+offset_left = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+horizontal_scroll_mode = 0
+
+[node name="VBox" type="VBoxContainer" parent="Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 18
+
+[node name="DisplayLabel" type="Label" parent="Scroll/VBox"]
+layout_mode = 2
+text = "Отображение"
+
+[node name="AutoAimRow" type="HBoxContainer" parent="Scroll/VBox"]
+layout_mode = 2
+
+[node name="AutoAimLabel" type="Label" parent="Scroll/VBox/AutoAimRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Авто-прицел (находит ближайшего врага)"
+
+[node name="AutoAimToggle" type="CheckButton" parent="Scroll/VBox/AutoAimRow"]
+layout_mode = 2
+
+[node name="ShowAimRow" type="HBoxContainer" parent="Scroll/VBox"]
+layout_mode = 2
+
+[node name="ShowAimLabel" type="Label" parent="Scroll/VBox/ShowAimRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Показывать лазерный индикатор прицела"
+
+[node name="ShowAimToggle" type="CheckButton" parent="Scroll/VBox/ShowAimRow"]
+layout_mode = 2
+
+[node name="ChatRow" type="HBoxContainer" parent="Scroll/VBox"]
+layout_mode = 2
+
+[node name="ChatLabel" type="Label" parent="Scroll/VBox/ChatRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Показывать чат сверху экрана"
+
+[node name="ChatToggle" type="CheckButton" parent="Scroll/VBox/ChatRow"]
+layout_mode = 2
+
+[node name="LightingRow" type="HBoxContainer" parent="Scroll/VBox"]
+layout_mode = 2
+
+[node name="LightingLabel" type="Label" parent="Scroll/VBox/LightingRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Освещение (Light2D, тени, мягкие тени)"
+
+[node name="LightingToggle" type="CheckButton" parent="Scroll/VBox/LightingRow"]
+layout_mode = 2
+
+[node name="YSortRow" type="HBoxContainer" parent="Scroll/VBox"]
+layout_mode = 2
+
+[node name="YSortLabel" type="Label" parent="Scroll/VBox/YSortRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Y-сортировка (игрок проходит головой за верх стены)"
+
+[node name="YSortToggle" type="CheckButton" parent="Scroll/VBox/YSortRow"]
+layout_mode = 2
+
+[node name="VolumeRow" type="HBoxContainer" parent="Scroll/VBox"]
+layout_mode = 2
+
+[node name="VolumeLabel" type="Label" parent="Scroll/VBox/VolumeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Громкость"
+
+[node name="VolumeSlider" type="HSlider" parent="Scroll/VBox/VolumeRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(220, 0)
+min_value = 0.0
+max_value = 1.0
+step = 0.05
+value = 0.8
+
+[node name="Sep1" type="HSeparator" parent="Scroll/VBox"]
+layout_mode = 2
+
+[node name="KeysLabel" type="Label" parent="Scroll/VBox"]
+layout_mode = 2
+text = "API ключи (нужны для AI-функций в модах)"
+
+[node name="KeysHint" type="RichTextLabel" parent="Scroll/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 80)
+bbcode_enabled = true
+fit_content = true
+text = "Ключи [b]хранятся локально[/b] в [code]user://settings/api_keys.cfg[/code] и [b]никогда не попадают[/b] в репозиторий. После ввода — нажмите «Сохранить». Получить ключи: openrouter.ai/keys (бесплатные модели) и @BotFather в Telegram."
+
+[node name="OpenRouterRow" type="HBoxContainer" parent="Scroll/VBox"]
+layout_mode = 2
+
+[node name="OpenRouterLabel" type="Label" parent="Scroll/VBox/OpenRouterRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(170, 0)
+text = "OpenRouter ключ"
+
+[node name="OpenRouterEdit" type="LineEdit" parent="Scroll/VBox/OpenRouterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+secret = true
+placeholder_text = "sk-or-v1-..."
+
+[node name="OpenRouterModelRow" type="HBoxContainer" parent="Scroll/VBox"]
+layout_mode = 2
+
+[node name="ModelLabel" type="Label" parent="Scroll/VBox/OpenRouterModelRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(170, 0)
+text = "Модель по умолчанию"
+
+[node name="ModelEdit" type="LineEdit" parent="Scroll/VBox/OpenRouterModelRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "google/gemma-3-12b-it:free"
+
+[node name="TelegramRow" type="HBoxContainer" parent="Scroll/VBox"]
+layout_mode = 2
+
+[node name="TelegramLabel" type="Label" parent="Scroll/VBox/TelegramRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(170, 0)
+text = "Telegram bot токен"
+
+[node name="TelegramEdit" type="LineEdit" parent="Scroll/VBox/TelegramRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+secret = true
+placeholder_text = "1234567:AAA..."
+
+[node name="TelegramChatRow" type="HBoxContainer" parent="Scroll/VBox"]
+layout_mode = 2
+
+[node name="TelegramChatLabel" type="Label" parent="Scroll/VBox/TelegramChatRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(170, 0)
+text = "Telegram chat id"
+
+[node name="TelegramChatEdit" type="LineEdit" parent="Scroll/VBox/TelegramChatRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "1618312309 или -100..."
+
+[node name="TestRow" type="HBoxContainer" parent="Scroll/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SaveButton" type="Button" parent="Scroll/VBox/TestRow"]
+layout_mode = 2
+text = "Сохранить"
+
+[node name="TestAiButton" type="Button" parent="Scroll/VBox/TestRow"]
+layout_mode = 2
+text = "Тест AI"
+
+[node name="ResultLabel" type="Label" parent="Scroll/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 32)
+text = ""

@@ -163,12 +163,21 @@ func _build_globals() -> Dictionary:
 		if args.size() < 2:
 			return null
 		var sig: String = String(args[0])
-		var fn = args[1]  # CallableUserFunc
+		var fn = args[1]  # CallableUserFunc captured in the closure below.
 		if not EventBus.has_signal(sig):
 			push_warning("RatScript: unknown signal '%s'" % sig)
 			return null
-		# Wrap user func into a real Callable.
-		var bridge := Callable(self, "_invoke_user_fn").bind(fn)
+		# Lambda captures `fn` directly — using .bind() would append the
+		# user fn *after* the signal args, which silently breaks every
+		# subscription whose signal carries fewer than 4 args.
+		var captured = fn
+		var self_ref = self
+		var bridge = func(a1 = null, a2 = null, a3 = null, a4 = null):
+			var passed: Array = []
+			for v in [a1, a2, a3, a4]:
+				if v != null:
+					passed.append(v)
+			self_ref._invoke(captured, passed)
 		EventBus.connect(sig, bridge)
 		_bus_conns.append([sig, bridge])
 		return null
@@ -324,6 +333,89 @@ func _build_globals() -> Dictionary:
 
 	g["mod_id"] = func(_args: Array) -> String: return mod_uuid
 	g["mod_name"] = func(_args: Array) -> String: return mod_name
+
+	# ── Networking / AI API ───────────────────────────────────────────────
+	g["http_get"] = func(args: Array) -> int:
+		if args.is_empty(): return 0
+		var url: String = String(args[0])
+		var hdrs: PackedStringArray = PackedStringArray()
+		if args.size() > 1 and args[1] is Array:
+			for h in args[1]:
+				hdrs.append(String(h))
+		return NetAPI.get_async(url, hdrs)
+
+	g["http_post"] = func(args: Array) -> int:
+		if args.size() < 2: return 0
+		var url: String = String(args[0])
+		var body: String = String(args[1])
+		var hdrs: PackedStringArray = PackedStringArray()
+		if args.size() > 2 and args[2] is Array:
+			for h in args[2]:
+				hdrs.append(String(h))
+		return NetAPI.post_async(url, body, hdrs)
+
+	g["http_cancel"] = func(args: Array):
+		if args.is_empty(): return null
+		NetAPI.cancel(int(args[0])); return null
+
+	g["ai_chat"] = func(args: Array) -> int:
+		if args.is_empty(): return 0
+		var prompt: String = String(args[0])
+		var model: String = String(args[1]) if args.size() > 1 else ""
+		return NetAPI.ai_chat_text(prompt, model)
+
+	g["ai_chat_as"] = func(args: Array) -> int:
+		if args.size() < 3: return 0
+		var prompt: String = String(args[0])
+		var sender: String = String(args[1])
+		var sid: String = String(args[2])
+		var model: String = String(args[3]) if args.size() > 3 else ""
+		return NetAPI.ai_chat_text(prompt, model,
+			func(_rid: int, _code: int, text: String):
+				ChatLog.send(sender, text, "info", sid))
+
+	# ── API keys (read-only access from RatScript) ────────────────────────
+	g["api_key"] = func(args: Array) -> String:
+		if args.is_empty(): return ""
+		var service: String = String(args[0])
+		var name: String = String(args[1]) if args.size() > 1 else "default"
+		return ApiKeys.get_key(service, name)
+
+	g["api_has_key"] = func(args: Array) -> bool:
+		if args.is_empty(): return false
+		var service: String = String(args[0])
+		var name: String = String(args[1]) if args.size() > 1 else "default"
+		return ApiKeys.has(service, name)
+
+	# ── String helpers ────────────────────────────────────────────────────
+	g["len"] = func(args: Array) -> int:
+		if args.is_empty(): return 0
+		var v = args[0]
+		if v is String: return v.length()
+		if v is Array: return v.size()
+		if v is Dictionary: return v.size()
+		return 0
+	g["str"] = func(args: Array) -> String:
+		if args.is_empty(): return ""
+		return String(args[0])
+	g["lower"] = func(args: Array) -> String:
+		return String(args[0]).to_lower() if not args.is_empty() else ""
+	g["upper"] = func(args: Array) -> String:
+		return String(args[0]).to_upper() if not args.is_empty() else ""
+	g["contains"] = func(args: Array) -> bool:
+		if args.size() < 2: return false
+		return String(args[0]).find(String(args[1])) != -1
+	g["replace"] = func(args: Array) -> String:
+		if args.size() < 3: return ""
+		return String(args[0]).replace(String(args[1]), String(args[2]))
+
+	# ── JSON ──────────────────────────────────────────────────────────────
+	g["json_parse"] = func(args: Array):
+		if args.is_empty(): return null
+		return JSON.parse_string(String(args[0]))
+	g["json_stringify"] = func(args: Array) -> String:
+		if args.is_empty(): return ""
+		return JSON.stringify(args[0])
 
 	return g
 
@@ -990,14 +1082,5 @@ func _invoke(callee, args: Array):
 	return null
 
 
-# Bridge for EventBus → RatScript user func (used by `on(...)`).
-func _invoke_user_fn(arg1 = null, arg2 = null, arg3 = null, arg4 = null,
-		user_fn = null) -> void:
-	# This binds in reverse — the last positional arg is the user fn.
-	if user_fn == null:
-		return
-	var args: Array = []
-	for v in [arg1, arg2, arg3, arg4]:
-		if v != null:
-			args.append(v)
-	_invoke(user_fn, args)
+# NOTE: the on() lambda now captures the user fn in its closure directly,
+# so no separate _invoke_user_fn bridge is needed.

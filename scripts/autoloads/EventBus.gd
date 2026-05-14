@@ -53,3 +53,6 @@ signal mods_reloaded
 signal chat_message(sender: String, text: String, kind: String, sender_id: String)
 signal chat_cleared
 signal chat_visibility_changed(visible: bool)
+
+# Networking — async HTTP responses (used by mods via http_get/http_post).
+signal net_response(request_id: int, code: int, body: String)
