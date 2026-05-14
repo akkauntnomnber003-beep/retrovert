@@ -1,0 +1,24 @@
+-- extra_starts: registers a custom passive item and grants it at run start.
+
+log("extra_starts loaded")
+
+item({
+    id = "rat_booster",
+    name = "Rat Booster",
+    description = "+30% урон и +20% скорость",
+    icon_path = "res://assets/sprites/items/rat_speed.png",
+    active = false,
+    quality = 2,
+    stats = {
+        player_damage = 1.0,
+        player_speed = 40.0
+    }
+})
+
+-- Grant immediately, then re-grant at each reset.
+grant("rat_booster")
+
+-- Re-grant when a new floor is entered.
+on("floor_entered") func(_floor_num)
+    grant("rat_booster")
+end

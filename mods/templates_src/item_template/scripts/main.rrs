@@ -1,0 +1,26 @@
+-- item_template
+-- Регистрирует пассивный предмет «Зуб удачи»: +1 dmg, +0.5 luck.
+
+chat_log("Зуб удачи: подбери, чтобы получить +1 урона и +0.5 удачи.")
+
+-- Зарегистрировать предмет
+items.register({
+    id = "tooth_of_luck",
+    name = "Зуб удачи",
+    description = "+1 урон, +0.5 удачи",
+    type = "passive",
+    quality = 2,
+    sprite = "",
+    on_pickup = func(player)
+        state.set("player_damage", state.get("player_damage") + 1.0)
+        state.set("player_luck", state.get("player_luck") + 0.5)
+        chat_item("Зуб удачи", "Подобран!", "tooth_of_luck")
+    end
+})
+
+-- Можно сразу выдать его при заходе на этаж 1
+on("floor_entered") func(n)
+    if n == 1 then
+        items.give(player(), "tooth_of_luck")
+    end
+end

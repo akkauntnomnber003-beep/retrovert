@@ -1,0 +1,112 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/HUD.gd" id="1_h"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/coin_icon.png" id="2_c"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/bomb_icon.png" id="2_b"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/key_icon.png" id="2_k"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui/panel.png" id="2_p"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_h")
+layer = 1
+
+[node name="TopLeft" type="VBoxContainer" parent="."]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 360.0
+offset_bottom = 200.0
+theme_override_constants/separation = 6
+
+[node name="HeartsBox" type="HBoxContainer" parent="TopLeft"]
+theme_override_constants/separation = 2
+
+[node name="Counters" type="VBoxContainer" parent="TopLeft"]
+theme_override_constants/separation = 4
+
+[node name="CoinRow" type="HBoxContainer" parent="TopLeft/Counters"]
+theme_override_constants/separation = 8
+
+[node name="Icon" type="TextureRect" parent="TopLeft/Counters/CoinRow"]
+custom_minimum_size = Vector2(28, 28)
+texture = ExtResource("2_c")
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="TopLeft/Counters/CoinRow"]
+custom_minimum_size = Vector2(60, 28)
+text = "0"
+vertical_alignment = 1
+
+[node name="BombRow" type="HBoxContainer" parent="TopLeft/Counters"]
+theme_override_constants/separation = 8
+
+[node name="Icon" type="TextureRect" parent="TopLeft/Counters/BombRow"]
+custom_minimum_size = Vector2(28, 28)
+texture = ExtResource("2_b")
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="TopLeft/Counters/BombRow"]
+custom_minimum_size = Vector2(60, 28)
+text = "0"
+vertical_alignment = 1
+
+[node name="KeyRow" type="HBoxContainer" parent="TopLeft/Counters"]
+theme_override_constants/separation = 8
+
+[node name="Icon" type="TextureRect" parent="TopLeft/Counters/KeyRow"]
+custom_minimum_size = Vector2(28, 28)
+texture = ExtResource("2_k")
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="TopLeft/Counters/KeyRow"]
+custom_minimum_size = Vector2(60, 28)
+text = "0"
+vertical_alignment = 1
+
+[node name="TopRight" type="Control" parent="."]
+offset_left = 1060.0
+offset_top = 16.0
+offset_right = 1264.0
+offset_bottom = 60.0
+
+[node name="FloorLabel" type="Label" parent="TopRight"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Floor 1"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="BottomLeft" type="Control" parent="."]
+offset_left = 16.0
+offset_top = 600.0
+offset_right = 200.0
+offset_bottom = 700.0
+
+[node name="ActiveItemSlot" type="Control" parent="BottomLeft"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Bg" type="TextureRect" parent="BottomLeft/ActiveItemSlot"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("2_p")
+stretch_mode = 6
+
+[node name="Icon" type="TextureRect" parent="BottomLeft/ActiveItemSlot"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -32.0
+stretch_mode = 5
+
+[node name="Charge" type="ProgressBar" parent="BottomLeft/ActiveItemSlot"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = -22.0
+offset_right = -8.0
+offset_bottom = -4.0
+max_value = 6.0
+show_percentage = false

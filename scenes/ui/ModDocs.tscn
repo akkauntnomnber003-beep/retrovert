@@ -1,0 +1,59 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/ModDocs.gd" id="1_d"]
+
+[node name="ModDocs" type="Control"]
+script = ExtResource("1_d")
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Bg" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.08, 0.07, 0.06, 1)
+
+[node name="TopBar" type="HBoxContainer" parent="."]
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 1264.0
+offset_bottom = 56.0
+
+[node name="BackButton" type="Button" parent="TopBar"]
+custom_minimum_size = Vector2(110, 44)
+text = "Назад"
+
+[node name="Title" type="Label" parent="TopBar"]
+text = "  Документация модов"
+vertical_alignment = 1
+
+[node name="Layout" type="HBoxContainer" parent="."]
+offset_left = 12.0
+offset_top = 64.0
+offset_right = 1264.0
+offset_bottom = 700.0
+theme_override_constants/separation = 12
+
+[node name="Left" type="VBoxContainer" parent="Layout"]
+custom_minimum_size = Vector2(280, 0)
+
+[node name="CategoryList" type="ItemList" parent="Layout/Left"]
+size_flags_vertical = 3
+
+[node name="Right" type="VBoxContainer" parent="Layout"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="SearchBar" type="HBoxContainer" parent="Layout/Right"]
+
+[node name="SearchLabel" type="Label" parent="Layout/Right/SearchBar"]
+text = "Поиск: "
+vertical_alignment = 1
+
+[node name="SearchField" type="LineEdit" parent="Layout/Right/SearchBar"]
+size_flags_horizontal = 3
+placeholder_text = "введите запрос..."
+
+[node name="Content" type="RichTextLabel" parent="Layout/Right"]
+size_flags_vertical = 3
+bbcode_enabled = true
+scroll_active = true

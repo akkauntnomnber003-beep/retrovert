@@ -1,0 +1,36 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/effects/TearImpact.gd" id="1_ti"]
+[ext_resource type="Texture2D" path="res://assets/sprites/effects/tear_impact.png" id="2_sheet"]
+
+[sub_resource type="AtlasTexture" id="At_t0"]
+atlas = ExtResource("2_sheet")
+region = Rect2(0, 0, 8, 8)
+
+[sub_resource type="AtlasTexture" id="At_t1"]
+atlas = ExtResource("2_sheet")
+region = Rect2(8, 0, 8, 8)
+
+[sub_resource type="AtlasTexture" id="At_t2"]
+atlas = ExtResource("2_sheet")
+region = Rect2(16, 0, 8, 8)
+
+[sub_resource type="AtlasTexture" id="At_t3"]
+atlas = ExtResource("2_sheet")
+region = Rect2(24, 0, 8, 8)
+
+[sub_resource type="SpriteFrames" id="SF_ti"]
+animations = [{
+"frames": [{"duration": 1.0, "texture": SubResource("At_t0")}, {"duration": 1.0, "texture": SubResource("At_t1")}, {"duration": 1.0, "texture": SubResource("At_t2")}, {"duration": 1.0, "texture": SubResource("At_t3")}],
+"loop": false,
+"name": &"hit",
+"speed": 16.0
+}]
+
+[node name="TearImpact" type="Node2D"]
+script = ExtResource("1_ti")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SF_ti")
+animation = &"hit"
+autoplay = "hit"

@@ -1,0 +1,23 @@
+-- chat_template
+-- Демонстрирует «чат-ИИ»: реакции на состояние игрока через события.
+
+let LINES = [
+    "Пусто. Тихо. Скучно.",
+    "Я тут наблюдаю.",
+    "Ты быстрый. Это хорошо.",
+    "Слышу что-то в стенах...",
+    "Не давай им шанса."
+]
+
+-- Случайная реплика при входе в каждую новую комнату.
+on("room_entered") func(pos)
+    let line = LINES[math.randi_range(0, 4)]
+    chat_send("Голос в голове", line, "info", "voice")
+end
+
+-- Реакция на низкое HP.
+on("player_hurt") func(damage)
+    if state.get("player_hp") <= 1 then
+        chat_error("Один удар до конца...")
+    end
+end

@@ -1,0 +1,15 @@
+-- coin_doubler: a tiny RatScript example.
+-- Adds 50 coins at start of run and doubles every coin pickup after.
+
+log("coin_doubler loaded")
+
+-- Starter bonus
+state.add_coins(50)
+
+-- Double every coin pickup
+on("pickup_collected") func(kind, amount)
+    if kind == "coin" then
+        state.add_coins(amount)
+        log("doubled a coin")
+    end
+end

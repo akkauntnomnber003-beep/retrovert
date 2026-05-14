@@ -1,0 +1,11 @@
+{
+  "id": "enemy_template",
+  "name": "Шаблон: Враг + чат",
+  "version": "1.0.0",
+  "author": "RatRovert",
+  "description": "Спавнит крикливого врага, который при появлении и смерти пишет в чат.",
+  "entry": "scripts/main.rrs",
+  "tags": ["template", "enemy", "chat"],
+  "dependencies": [],
+  "uuid": ""
+}

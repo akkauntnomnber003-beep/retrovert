@@ -1,0 +1,11 @@
+{
+  "id": "item_template",
+  "name": "Шаблон: Предмет",
+  "version": "1.0.0",
+  "author": "RatRovert",
+  "description": "Регистрирует пример пассивного предмета, который повышает урон и пишет в чат при подборе.",
+  "entry": "scripts/main.rrs",
+  "tags": ["template", "item"],
+  "dependencies": [],
+  "uuid": ""
+}

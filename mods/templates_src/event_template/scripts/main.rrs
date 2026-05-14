@@ -1,0 +1,32 @@
+-- event_template
+-- Логирует ключевые события игры в чат. Хороший каркас для своих модов.
+
+chat_log("Слушатель событий запущен.")
+
+on("floor_entered") func(n)
+    chat_log("Вошли на этаж " .. n)
+end
+
+on("room_entered") func(pos)
+    chat_log("Новая комната: " .. pos.x .. "," .. pos.y)
+end
+
+on("room_cleared") func(pos)
+    chat_log("Комната зачищена")
+end
+
+on("enemy_died") func(pos, kind)
+    chat_log("Убит враг: " .. kind)
+end
+
+on("player_hurt") func(damage)
+    chat_error("Получено " .. damage .. " урона")
+end
+
+on("item_picked_up") func(item_id)
+    chat_log("Поднят предмет: " .. item_id)
+end
+
+on("boss_died") func()
+    chat_log("Босс повержен!")
+end

@@ -1,0 +1,11 @@
+{
+  "id": "chat_template",
+  "name": "Шаблон: Чат-ИИ",
+  "version": "1.0.0",
+  "author": "RatRovert",
+  "description": "Раз в несколько секунд бросает случайную фразу в чат. Демонстрирует таймеры.",
+  "entry": "scripts/main.rrs",
+  "tags": ["template", "chat", "ai"],
+  "dependencies": [],
+  "uuid": ""
+}

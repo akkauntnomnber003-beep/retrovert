@@ -1,0 +1,11 @@
+{
+  "id": "event_template",
+  "name": "Шаблон: События",
+  "version": "1.0.0",
+  "author": "RatRovert",
+  "description": "Показывает, как слушать ключевые события игры и реагировать на них.",
+  "entry": "scripts/main.rrs",
+  "tags": ["template", "events"],
+  "dependencies": [],
+  "uuid": ""
+}
