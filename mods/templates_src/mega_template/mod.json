@@ -1,0 +1,14 @@
+{
+  "id": "mega_template",
+  "name": "Mega Template — Dark Rift Suite",
+  "version": "1.0.0",
+  "author": "RatRovert Team",
+  "description": "Полный показательный мод: новый предмет, дружелюбные мухи-помощники, AI-комментатор, чат-NPC, лут после боссов, и сохранение статистики в файл.",
+  "entry": "scripts/main.rrs",
+  "icon": "icon.png",
+  "tags": ["ai", "chat", "item", "events", "loot", "demo"],
+  "permissions": {
+    "network": true,
+    "files": true
+  }
+}

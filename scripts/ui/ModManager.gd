@@ -191,6 +191,7 @@ func _on_templates() -> void:
 	menu.add_item("Шаблон: События", 2)
 	menu.add_item("Шаблон: Чат-ИИ", 3)
 	menu.add_item("Шаблон: Чит-фрагменты", 4)
+	menu.add_item("Шаблон: Mega Suite (всё сразу)", 5)
 	add_child(menu)
 	menu.position = templates_btn.get_screen_position() + Vector2(0, templates_btn.size.y)
 	menu.popup()
@@ -204,6 +205,7 @@ func _install_template(id: int) -> void:
 		2: "event_template.retrovert",
 		3: "chat_template.retrovert",
 		4: "cheat_fragments.retrovert",
+		5: "mega_template.retrovert",
 	}
 	var fname: String = template_map.get(id, "")
 	if fname == "":
