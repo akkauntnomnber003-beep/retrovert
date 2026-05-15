@@ -1,0 +1,66 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/LeaperAI.gd" id="1_s"]
+[ext_resource type="Texture2D" path="res://assets/sprites/enemies/leaper_sheet.png" id="2_t"]
+
+[sub_resource type="AtlasTexture" id="At_0"]
+atlas = ExtResource("2_t")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="At_1"]
+atlas = ExtResource("2_t")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SF"]
+animations = [{
+"frames": [{"duration": 1.0, "texture": SubResource("At_0")}, {"duration": 1.0, "texture": SubResource("At_1")}],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}]
+
+[sub_resource type="CircleShape2D" id="C_hurt"]
+radius = 12.0
+
+[sub_resource type="CircleShape2D" id="C_contact"]
+radius = 12.0
+
+[node name="Leaper" type="CharacterBody2D"]
+script = ExtResource("1_s")
+collision_layer = 4
+collision_mask = 65
+motion_mode = 1
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SF")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("C_contact")
+
+[node name="HurtBox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
+shape = SubResource("C_hurt")
+
+[node name="ContactBox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContactBox"]
+shape = SubResource("C_contact")
+
+[node name="HPBar" type="ProgressBar" parent="."]
+offset_left = -18.0
+offset_top = -30.0
+offset_right = 18.0
+offset_bottom = -24.0
+show_percentage = false
+value = 100.0
+
+[node name="KnockbackTimer" type="Timer" parent="."]
+wait_time = 0.3
+one_shot = true

@@ -1,0 +1,44 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/effects/Explosion.gd" id="1_ex"]
+[ext_resource type="Texture2D" path="res://assets/sprites/effects/explosion_sheet.png" id="2_sheet"]
+
+[sub_resource type="AtlasTexture" id="At_e0"]
+atlas = ExtResource("2_sheet")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="At_e1"]
+atlas = ExtResource("2_sheet")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="At_e2"]
+atlas = ExtResource("2_sheet")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="At_e3"]
+atlas = ExtResource("2_sheet")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="At_e4"]
+atlas = ExtResource("2_sheet")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="At_e5"]
+atlas = ExtResource("2_sheet")
+region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SF_ex"]
+animations = [{
+"frames": [{"duration": 1.0, "texture": SubResource("At_e0")}, {"duration": 1.0, "texture": SubResource("At_e1")}, {"duration": 1.0, "texture": SubResource("At_e2")}, {"duration": 1.0, "texture": SubResource("At_e3")}, {"duration": 1.0, "texture": SubResource("At_e4")}, {"duration": 1.0, "texture": SubResource("At_e5")}],
+"loop": false,
+"name": &"boom",
+"speed": 14.0
+}]
+
+[node name="Explosion" type="Node2D"]
+script = ExtResource("1_ex")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SF_ex")
+animation = &"boom"
+autoplay = "boom"

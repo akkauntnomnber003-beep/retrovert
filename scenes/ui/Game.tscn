@@ -1,0 +1,34 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/Game.gd" id="1_g"]
+
+[node name="Game" type="Node2D"]
+script = ExtResource("1_g")
+
+[node name="RoomHolder" type="Node2D" parent="."]
+
+[node name="RoomCamera" type="Camera2D" parent="."]
+enabled = true
+position = Vector2(640, 360)
+zoom = Vector2(1.0, 1.0)
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
+limit_left = 0
+limit_top = 0
+limit_right = 1280
+limit_bottom = 720
+
+[node name="HUDLayer" type="CanvasLayer" parent="."]
+layer = 1
+
+[node name="TouchLayer" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="Fade" type="ColorRect" parent="UI"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0)
+mouse_filter = 2

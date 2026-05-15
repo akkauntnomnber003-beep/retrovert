@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/items/ItemPickup.gd" id="1_ip"]
+[ext_resource type="Texture2D" path="res://assets/sprites/items/blood_tear.png" id="2_t"]
+
+[sub_resource type="CircleShape2D" id="C_ip"]
+radius = 12.0
+
+[node name="ItemPickup" type="Area2D"]
+script = ExtResource("1_ip")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_t")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("C_ip")
+
+[node name="Label" type="Label" parent="."]
+offset_left = -60.0
+offset_top = 18.0
+offset_right = 60.0
+offset_bottom = 38.0
+horizontal_alignment = 1
