@@ -264,9 +264,22 @@ func _die() -> void:
 	set_physics_process(false)
 	AudioManager.play_sfx("player_die")
 	GameState.deaths_total += 1
+	# Epic death feedback: slow-mo, big blood burst, hard camera shake.
+	EventBus.blood_splatter.emit(global_position, 24)
+	EventBus.camera_shake.emit(8.0, 0.55)
+	Engine.time_scale = 0.35
 	var tw := create_tween()
-	tw.tween_property(self, "modulate:a", 0.0, 0.5)
-	tw.tween_callback(func(): EventBus.player_died.emit())
+	tw.set_parallel(true)
+	tw.tween_property(self, "modulate:a", 0.0, 0.6)
+	tw.tween_property(self, "rotation", deg_to_rad(90.0), 0.45)\
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(self, "scale", Vector2(1.25, 0.55), 0.45)\
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	# Wait, then restore time and notify game-over.
+	var t2 := get_tree().create_timer(0.55, true, false, true)
+	t2.timeout.connect(func():
+		Engine.time_scale = 1.0
+		EventBus.player_died.emit())
 
 
 func _input(event: InputEvent) -> void:

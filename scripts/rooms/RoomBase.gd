@@ -298,13 +298,40 @@ func _place_treasure() -> void:
 
 
 func _place_shop() -> void:
-	for i in 3:
-		var coin_scene: PackedScene = load("res://scenes/items/Coin.tscn")
-		if coin_scene == null:
+	# Brawl-Stars-style three-stall layout. Each stall wraps a real
+	# pickup and gates it behind a coin price. Stalls live in pickup_root
+	# so they leave the room with everything else.
+	var stall_scene: PackedScene = load("res://scenes/items/ShopStall.tscn")
+	if stall_scene == null:
+		return
+	# Stock = mix of essentials and one random gamble.
+	var stock: Array = [
+		{"scene": "res://scenes/items/Heart.tscn", "price": 5,
+			"label": "Сердце"},
+		{"scene": "res://scenes/items/Bomb.tscn",  "price": 6,
+			"label": "Бомба"},
+		{"scene": "res://scenes/items/Key.tscn",   "price": 7,
+			"label": "Ключ"},
+	]
+	# If the player has lots of cash, swap the cheapest slot for an item.
+	if GameState.player_coins >= 12 \
+			and load("res://scenes/items/ItemPickup.tscn") != null:
+		stock[0] = {"scene": "res://scenes/items/ItemPickup.tscn",
+			"price": 15, "label": "Случайный артефакт"}
+	for i in stock.size():
+		var entry: Dictionary = stock[i]
+		var item_pscene: PackedScene = load(entry["scene"])
+		if item_pscene == null:
 			continue
-		var c: Node2D = coin_scene.instantiate()
-		c.position = Vector2(ROOM_W * 0.5 - 200 + i * 200, ROOM_H * 0.5)
-		pickup_root.add_child(c)
+		var stall: Node2D = stall_scene.instantiate()
+		stall.position = Vector2(ROOM_W * 0.5 - 200 + i * 200, ROOM_H * 0.5)
+		if "item_scene" in stall:
+			stall.set("item_scene", item_pscene)
+		if "price" in stall:
+			stall.set("price", int(entry["price"]))
+		if "label_text" in stall:
+			stall.set("label_text", String(entry["label"]))
+		pickup_root.add_child(stall)
 
 
 func _lock_all_doors() -> void:

@@ -1,0 +1,54 @@
+name: godot-check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  parse-and-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Godot 4.6 + Xvfb
+        run: |
+          set -euo pipefail
+          sudo apt-get update -y >/dev/null
+          sudo apt-get install -y --no-install-recommends xvfb unzip curl >/dev/null
+          cd /tmp
+          curl -fsSL -o godot.zip \
+            https://github.com/godotengine/godot/releases/download/4.6-stable/Godot_v4.6-stable_linux.x86_64.zip
+          unzip -o godot.zip >/dev/null
+          sudo install -m 0755 Godot_v4.6-stable_linux.x86_64 /usr/local/bin/godot
+          godot --version
+
+      - name: Import resources
+        run: |
+          set +e
+          godot --headless --path . --import
+          # Godot returns non-zero when nothing needs importing; ignore it.
+          true
+
+      - name: Parse-only check
+        run: |
+          set -e
+          # `--check-only` returns non-zero on parse errors. We grep for
+          # the specific "Parse Error" string so spurious resource-leak
+          # warnings at shutdown don't fail the job.
+          out=$(godot --headless --quit --path . --check-only 2>&1 || true)
+          echo "$out"
+          if echo "$out" | grep -E "(Parse Error|Failed to load script)" >/dev/null; then
+            echo "::error::Parse errors detected"
+            exit 1
+          fi
+
+      - name: Smoke test (boots Game.tscn for 2 s)
+        run: |
+          set -e
+          out=$(xvfb-run -a godot --headless --path . -s tools/smoke_test.gd 2>&1)
+          echo "$out"
+          echo "$out" | grep -q "Smoke test OK"

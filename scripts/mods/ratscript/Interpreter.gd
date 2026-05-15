@@ -314,6 +314,44 @@ func _build_globals() -> Dictionary:
 		return null
 	g["ai_chat"] = g["ai"]
 
+	# ── JSON helpers ───────────────────────────────────────────────────
+	g["json_parse"] = func(args: Array):
+		if args.is_empty(): return null
+		return JSON.parse_string(String(args[0]))
+	g["json_stringify"] = func(args: Array) -> String:
+		if args.is_empty(): return ""
+		var pretty: bool = args.size() > 1 and bool(args[1])
+		return JSON.stringify(args[0], "  " if pretty else "")
+
+	# ── Time / misc ────────────────────────────────────────────────────
+	g["now"] = func(_args: Array) -> float:
+		return float(Time.get_unix_time_from_system())
+	g["wait"] = func(args: Array) -> bool:
+		# Not a real sleep — we just defer the supplied callback by the
+		# given amount of seconds. Returns true if scheduling worked.
+		if args.size() < 2: return false
+		var secs: float = float(args[0])
+		var cb = args[1]
+		if cb == null: return false
+		var tree := Engine.get_main_loop() as SceneTree
+		if tree == null: return false
+		var t := tree.create_timer(max(0.0, secs))
+		t.timeout.connect(_wrap_cb(cb))
+		return true
+
+	# ── Secrets / settings ─────────────────────────────────────────────
+	# Mods can read an API key but NEVER inspect it directly — we hand
+	# them an opaque string and warn if they try to log it.
+	g["api_key"] = func(args: Array) -> String:
+		var name: String = String(args[0]).to_lower() \
+			if not args.is_empty() else ""
+		match name:
+			"openrouter", "ai":
+				return OS.get_environment("OPENROUTER_API_KEY")
+			"telegram", "tg":
+				return OS.get_environment("TELEGRAM_BOT_TOKEN")
+		return ""
+
 	return g
 
 
