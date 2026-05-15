@@ -1,0 +1,2761 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RatRovert — Полное руководство по моддингу</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Mulish:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   ПЕРЕМЕННЫЕ И СБРОС
+═══════════════════════════════════════════════════════ */
+:root {
+  --bg:          #07070f;
+  --bg2:         #0d0d1a;
+  --bg3:         #13131f;
+  --card:        #111120;
+  --card2:       #16162a;
+  --border:      rgba(255,107,53,0.15);
+  --border2:     rgba(0,212,170,0.12);
+  --accent:      #ff6b35;
+  --accent2:     #ff8c5a;
+  --teal:        #00d4aa;
+  --teal2:       #00ffcc;
+  --yellow:      #ffd166;
+  --purple:      #9b72cf;
+  --red:         #ff4d6a;
+  --text:        #dde1f0;
+  --text2:       #9097b8;
+  --text3:       #5d6490;
+  --code-bg:     #0a0a18;
+  --code-str:    #89f7b5;
+  --code-num:    #ffd166;
+  --code-kw:     #ff6b9d;
+  --code-fn:     #7ec8e3;
+  --code-cmt:    #4a5080;
+  --code-var:    #e8b4f8;
+  --sidebar-w:   280px;
+  --radius:      10px;
+  --radius2:     6px;
+  --glow:        0 0 40px rgba(255,107,53,0.12);
+  --glow-teal:   0 0 30px rgba(0,212,170,0.1);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Mulish',sans-serif;
+  font-weight:400;
+  line-height:1.7;
+  overflow-x:hidden;
+}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+::selection{background:rgba(255,107,53,0.3);color:#fff}
+
+/* ═══════════════════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════════════════ */
+.layout{display:flex;min-height:100vh}
+.main-content{
+  flex:1;
+  margin-left:var(--sidebar-w);
+  min-width:0;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════════════════ */
+.sidebar{
+  position:fixed;
+  left:0;top:0;bottom:0;
+  width:var(--sidebar-w);
+  background:var(--bg2);
+  border-right:1px solid var(--border);
+  overflow-y:auto;
+  z-index:100;
+  display:flex;
+  flex-direction:column;
+  padding-bottom:2rem;
+}
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar-logo{
+  padding:1.4rem 1.5rem;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:0.75rem;
+}
+.logo-icon{
+  width:36px;height:36px;
+  background:linear-gradient(135deg,var(--accent),#c94400);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;
+  box-shadow:0 0 20px rgba(255,107,53,0.4);
+  flex-shrink:0;
+}
+.logo-text{
+  font-family:'Oxanium',monospace;
+  font-weight:700;
+  font-size:1rem;
+  line-height:1.2;
+  color:#fff;
+}
+.logo-sub{
+  font-size:0.65rem;
+  color:var(--text3);
+  font-weight:400;
+  font-family:'Mulish',sans-serif;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+}
+.sidebar-search{
+  padding:1rem 1rem 0.5rem;
+}
+.sidebar-search input{
+  width:100%;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:var(--radius2);
+  padding:0.5rem 0.75rem 0.5rem 2rem;
+  color:var(--text);
+  font-size:0.8rem;
+  font-family:'Mulish',sans-serif;
+  outline:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239097b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:0.6rem center;
+  transition:border-color 0.2s;
+}
+.sidebar-search input:focus{border-color:var(--accent)}
+.sidebar-search input::placeholder{color:var(--text3)}
+.nav-group{margin-top:0.5rem}
+.nav-group-title{
+  padding:0.5rem 1.2rem;
+  font-size:0.62rem;
+  text-transform:uppercase;
+  letter-spacing:0.12em;
+  color:var(--text3);
+  font-weight:700;
+}
+.nav-link{
+  display:flex;align-items:center;gap:0.5rem;
+  padding:0.42rem 1.2rem;
+  color:var(--text2);
+  text-decoration:none;
+  font-size:0.82rem;
+  font-weight:600;
+  border-left:2px solid transparent;
+  transition:all 0.15s;
+  cursor:pointer;
+}
+.nav-link:hover,.nav-link.active{
+  color:var(--accent);
+  border-left-color:var(--accent);
+  background:rgba(255,107,53,0.06);
+}
+.nav-link .nav-dot{
+  width:5px;height:5px;
+  border-radius:50%;
+  background:var(--text3);
+  flex-shrink:0;
+  transition:background 0.15s;
+}
+.nav-link:hover .nav-dot,.nav-link.active .nav-dot{background:var(--accent)}
+.nav-badge{
+  margin-left:auto;
+  background:rgba(255,107,53,0.15);
+  color:var(--accent);
+  font-size:0.6rem;
+  padding:0.1rem 0.4rem;
+  border-radius:20px;
+  font-weight:700;
+}
+.nav-badge.teal{background:rgba(0,212,170,0.15);color:var(--teal)}
+
+/* Мобильный хедер */
+.mobile-header{
+  display:none;
+  position:sticky;top:0;z-index:200;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  padding:0.9rem 1.2rem;
+  align-items:center;justify-content:space-between;
+}
+.hamburger{
+  background:none;border:none;cursor:pointer;
+  padding:0.3rem;color:var(--text);
+  display:flex;flex-direction:column;gap:4px;
+}
+.hamburger span{
+  display:block;width:22px;height:2px;
+  background:var(--text);border-radius:2px;
+  transition:all 0.3s;
+}
+.hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.sidebar-overlay{
+  display:none;
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.7);
+  z-index:99;
+}
+
+/* ═══════════════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════════════ */
+.hero{
+  position:relative;
+  padding:5rem 3rem 4rem;
+  overflow:hidden;
+  border-bottom:1px solid var(--border);
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 70% 60% at 20% 50%, rgba(255,107,53,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 30%, rgba(0,212,170,0.06) 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,107,53,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,107,53,0.04) 1px, transparent 1px);
+  background-size:40px 40px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+}
+.hero-content{position:relative;max-width:800px}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:rgba(255,107,53,0.1);
+  border:1px solid rgba(255,107,53,0.25);
+  border-radius:20px;
+  padding:0.3rem 0.9rem;
+  font-size:0.72rem;
+  font-weight:700;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:1.5rem;
+}
+.hero-eyebrow::before{
+  content:'';width:6px;height:6px;
+  background:var(--accent);border-radius:50%;
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+h1.hero-title{
+  font-family:'Oxanium',monospace;
+  font-size:clamp(2.2rem,5vw,3.8rem);
+  font-weight:800;
+  line-height:1.1;
+  letter-spacing:-0.02em;
+  margin-bottom:1.2rem;
+}
+.hero-title span.accent{
+  background:linear-gradient(90deg,var(--accent),var(--yellow));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-title span.teal{
+  background:linear-gradient(90deg,var(--teal),var(--teal2));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-desc{
+  font-size:1.05rem;
+  color:var(--text2);
+  max-width:600px;
+  line-height:1.8;
+  margin-bottom:2rem;
+}
+.hero-tags{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:2.5rem}
+.tag{
+  background:var(--card2);
+  border:1px solid var(--border);
+  border-radius:var(--radius2);
+  padding:0.3rem 0.7rem;
+  font-size:0.75rem;
+  font-family:'JetBrains Mono',monospace;
+  color:var(--text2);
+}
+.tag.t-accent{border-color:rgba(255,107,53,0.3);color:var(--accent);background:rgba(255,107,53,0.06)}
+.tag.t-teal{border-color:rgba(0,212,170,0.3);color:var(--teal);background:rgba(0,212,170,0.06)}
+.tag.t-yellow{border-color:rgba(255,209,102,0.3);color:var(--yellow);background:rgba(255,209,102,0.06)}
+.hero-stats{
+  display:flex;flex-wrap:wrap;gap:1.5rem;
+}
+.hero-stat{
+  display:flex;flex-direction:column;
+  align-items:flex-start;
+}
+.hero-stat-num{
+  font-family:'Oxanium',monospace;
+  font-size:1.6rem;
+  font-weight:800;
+  color:#fff;
+  line-height:1;
+}
+.hero-stat-label{
+  font-size:0.72rem;
+  color:var(--text3);
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+}
+
+/* ═══════════════════════════════════════════════════════
+   СЕКЦИИ И ТИПОГРАФИЯ
+═══════════════════════════════════════════════════════ */
+section{
+  padding:3.5rem 3rem;
+  border-bottom:1px solid rgba(255,107,53,0.07);
+}
+.section-header{
+  display:flex;align-items:baseline;gap:1rem;
+  margin-bottom:0.5rem;
+}
+.section-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.75rem;
+  color:var(--accent);
+  font-weight:700;
+}
+h2.section-title{
+  font-family:'Oxanium',monospace;
+  font-size:clamp(1.4rem,3vw,1.9rem);
+  font-weight:700;
+  color:#fff;
+  line-height:1.2;
+  margin-bottom:0.6rem;
+}
+.section-desc{
+  color:var(--text2);
+  font-size:0.95rem;
+  margin-bottom:2rem;
+  max-width:700px;
+}
+h3{
+  font-family:'Oxanium',monospace;
+  font-size:1.1rem;
+  font-weight:700;
+  color:#fff;
+  margin:1.8rem 0 0.8rem;
+}
+h3:first-child{margin-top:0}
+h4{
+  font-size:0.9rem;
+  font-weight:700;
+  color:var(--accent2);
+  font-family:'Oxanium',monospace;
+  margin:1.2rem 0 0.5rem;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  font-size:0.8rem;
+}
+p{color:var(--text2);margin-bottom:0.8rem;font-size:0.95rem}
+strong{color:var(--text);font-weight:700}
+a{color:var(--accent);text-decoration:none}
+a:hover{color:var(--accent2);text-decoration:underline}
+
+/* ═══════════════════════════════════════════════════════
+   КАРТОЧКИ
+═══════════════════════════════════════════════════════ */
+.cards-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:1rem;
+  margin-bottom:1.5rem;
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.4rem;
+  transition:border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  position:relative;
+  overflow:hidden;
+}
+.card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--accent),transparent);
+  opacity:0;transition:opacity 0.2s;
+}
+.card:hover{
+  border-color:rgba(255,107,53,0.35);
+  transform:translateY(-2px);
+  box-shadow:var(--glow);
+}
+.card:hover::before{opacity:1}
+.card.teal{border-color:var(--border2)}
+.card.teal::before{background:linear-gradient(90deg,var(--teal),transparent)}
+.card.teal:hover{border-color:rgba(0,212,170,0.35);box-shadow:var(--glow-teal)}
+.card-icon{
+  width:38px;height:38px;
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.2rem;
+  margin-bottom:1rem;
+}
+.card-icon.orange{background:rgba(255,107,53,0.15)}
+.card-icon.teal{background:rgba(0,212,170,0.12)}
+.card-icon.yellow{background:rgba(255,209,102,0.12)}
+.card-icon.purple{background:rgba(155,114,207,0.12)}
+.card-icon.red{background:rgba(255,77,106,0.12)}
+.card-title{
+  font-family:'Oxanium',monospace;
+  font-size:0.95rem;
+  font-weight:700;
+  color:#fff;
+  margin-bottom:0.4rem;
+}
+.card-desc{font-size:0.82rem;color:var(--text2);line-height:1.6}
+
+/* ═══════════════════════════════════════════════════════
+   КОД
+═══════════════════════════════════════════════════════ */
+.code-block{
+  background:var(--code-bg);
+  border:1px solid rgba(255,107,53,0.12);
+  border-radius:var(--radius);
+  overflow:hidden;
+  margin:1rem 0;
+  position:relative;
+}
+.code-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.6rem 1rem;
+  background:rgba(255,107,53,0.04);
+  border-bottom:1px solid rgba(255,107,53,0.1);
+}
+.code-dots{display:flex;gap:5px}
+.code-dots span{
+  width:10px;height:10px;border-radius:50%;
+}
+.code-dots span:nth-child(1){background:#ff5f57}
+.code-dots span:nth-child(2){background:#febc2e}
+.code-dots span:nth-child(3){background:#28c840}
+.code-lang{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem;
+  color:var(--text3);
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+}
+.copy-btn{
+  background:rgba(255,107,53,0.1);
+  border:1px solid rgba(255,107,53,0.2);
+  color:var(--accent);
+  border-radius:4px;
+  padding:0.2rem 0.6rem;
+  font-size:0.7rem;
+  font-family:'JetBrains Mono',monospace;
+  cursor:pointer;
+  transition:all 0.15s;
+}
+.copy-btn:hover{background:rgba(255,107,53,0.2)}
+.copy-btn.copied{color:var(--teal);border-color:var(--teal);background:rgba(0,212,170,0.1)}
+pre{
+  padding:1.2rem 1.2rem;
+  overflow-x:auto;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.82rem;
+  line-height:1.7;
+  color:#c9d1e0;
+}
+pre::-webkit-scrollbar{height:4px}
+pre::-webkit-scrollbar-track{background:transparent}
+pre::-webkit-scrollbar-thumb{background:rgba(255,107,53,0.3);border-radius:2px}
+/* Подсветка синтаксиса */
+.k{color:var(--code-kw);font-weight:700}      /* keywords */
+.fn{color:var(--code-fn)}                      /* functions */
+.s{color:var(--code-str)}                      /* strings */
+.n{color:var(--code-num)}                      /* numbers */
+.c{color:var(--code-cmt);font-style:italic}    /* comments */
+.v{color:var(--code-var)}                      /* variables */
+.p{color:#7d8cbf}                              /* punctuation */
+code{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.82em;
+  background:rgba(255,107,53,0.1);
+  border:1px solid rgba(255,107,53,0.15);
+  border-radius:3px;
+  padding:0.1em 0.4em;
+  color:var(--accent2);
+}
+
+/* ═══════════════════════════════════════════════════════
+   ТАБЛИЦЫ API
+═══════════════════════════════════════════════════════ */
+.api-table{width:100%;border-collapse:collapse;margin:0.8rem 0 1.5rem;font-size:0.83rem}
+.api-table th{
+  text-align:left;
+  padding:0.6rem 1rem;
+  background:rgba(255,107,53,0.06);
+  color:var(--accent);
+  font-family:'Oxanium',monospace;
+  font-size:0.72rem;
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  border-bottom:1px solid var(--border);
+}
+.api-table td{
+  padding:0.55rem 1rem;
+  border-bottom:1px solid rgba(255,107,53,0.06);
+  color:var(--text2);
+  vertical-align:top;
+}
+.api-table tr:last-child td{border-bottom:none}
+.api-table tr:hover td{background:rgba(255,107,53,0.03)}
+.api-table td:first-child{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.8rem;
+  color:var(--code-fn);
+  white-space:nowrap;
+}
+.api-table td code{font-size:0.78em}
+.ret{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.75rem;
+  color:var(--yellow);
+  background:rgba(255,209,102,0.08);
+  border:1px solid rgba(255,209,102,0.15);
+  border-radius:3px;
+  padding:0.1em 0.35em;
+}
+
+/* ═══════════════════════════════════════════════════════
+   СОБЫТИЯ (SIGNALS)
+═══════════════════════════════════════════════════════ */
+.signal-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:0.5rem;
+  margin:0.8rem 0;
+}
+.signal-item{
+  background:var(--card2);
+  border:1px solid var(--border);
+  border-radius:var(--radius2);
+  padding:0.6rem 0.9rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.75rem;
+}
+.signal-name{color:var(--teal);font-weight:700}
+.signal-args{color:var(--text3);margin-top:0.15rem}
+
+/* ═══════════════════════════════════════════════════════
+   РЕЦЕПТЫ (COOKBOOK)
+═══════════════════════════════════════════════════════ */
+.recipe{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  margin-bottom:1.2rem;
+  overflow:hidden;
+}
+.recipe-header{
+  display:flex;align-items:center;gap:1rem;
+  padding:1rem 1.3rem;
+  cursor:pointer;
+  user-select:none;
+  transition:background 0.15s;
+}
+.recipe-header:hover{background:rgba(255,107,53,0.04)}
+.recipe-num{
+  background:rgba(255,107,53,0.15);
+  color:var(--accent);
+  border-radius:6px;
+  width:30px;height:30px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Oxanium',monospace;
+  font-size:0.8rem;
+  font-weight:700;
+  flex-shrink:0;
+}
+.recipe-title{
+  font-family:'Oxanium',monospace;
+  font-size:0.95rem;
+  font-weight:700;
+  color:#fff;
+  flex:1;
+}
+.recipe-arrow{
+  color:var(--text3);
+  transition:transform 0.25s;
+  font-size:0.8rem;
+}
+.recipe.open .recipe-arrow{transform:rotate(90deg)}
+.recipe-body{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height 0.35s ease;
+}
+.recipe.open .recipe-body{max-height:600px}
+.recipe-body-inner{
+  padding:0 1.3rem 1.3rem;
+  border-top:1px solid rgba(255,107,53,0.08);
+}
+.recipe-desc{
+  font-size:0.87rem;
+  color:var(--text2);
+  margin:0.8rem 0 0;
+}
+
+/* ═══════════════════════════════════════════════════════
+   КАЛЬКУЛЯТОР
+═══════════════════════════════════════════════════════ */
+.calc-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1.5rem;
+}
+.calc-panel{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.5rem;
+}
+.calc-panel h3{margin-top:0;font-size:1rem}
+.calc-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:1rem;
+  margin-bottom:0.9rem;
+}
+.calc-label{
+  font-size:0.82rem;
+  color:var(--text2);
+  font-weight:600;
+  flex:1;
+  min-width:120px;
+}
+.calc-input-wrap{
+  display:flex;align-items:center;gap:0.5rem;
+  flex:1;
+}
+.calc-input{
+  background:var(--code-bg);
+  border:1px solid var(--border);
+  border-radius:var(--radius2);
+  color:var(--text);
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.82rem;
+  padding:0.4rem 0.7rem;
+  width:80px;
+  text-align:center;
+  outline:none;
+  transition:border-color 0.15s;
+}
+.calc-input:focus{border-color:var(--accent)}
+.calc-slider{
+  flex:1;
+  appearance:none;
+  height:4px;
+  background:var(--border);
+  border-radius:2px;
+  outline:none;
+  cursor:pointer;
+}
+.calc-slider::-webkit-slider-thumb{
+  appearance:none;
+  width:16px;height:16px;
+  border-radius:50%;
+  background:var(--accent);
+  cursor:pointer;
+  box-shadow:0 0 8px rgba(255,107,53,0.5);
+}
+.calc-result{
+  background:var(--code-bg);
+  border:1px solid var(--border2);
+  border-radius:var(--radius);
+  padding:1.2rem;
+  margin-top:1rem;
+}
+.calc-result-row{
+  display:flex;justify-content:space-between;
+  align-items:center;
+  padding:0.35rem 0;
+  border-bottom:1px solid rgba(0,212,170,0.08);
+  font-size:0.85rem;
+}
+.calc-result-row:last-child{border-bottom:none}
+.calc-result-key{color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:0.8rem}
+.calc-result-val{
+  font-family:'JetBrains Mono',monospace;
+  font-weight:700;
+  color:var(--teal);
+  font-size:0.9rem;
+}
+.calc-result-val.high{color:var(--accent)}
+.calc-result-val.mid{color:var(--yellow)}
+.calc-add-item{
+  background:none;
+  border:1px dashed rgba(255,107,53,0.3);
+  color:var(--accent);
+  border-radius:var(--radius2);
+  padding:0.4rem 0.8rem;
+  font-size:0.8rem;
+  cursor:pointer;
+  font-family:'Mulish',sans-serif;
+  transition:all 0.15s;
+  width:100%;
+  margin-top:0.5rem;
+}
+.calc-add-item:hover{background:rgba(255,107,53,0.08);border-style:solid}
+.item-select{
+  background:var(--code-bg);
+  border:1px solid var(--border);
+  border-radius:var(--radius2);
+  color:var(--text);
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.78rem;
+  padding:0.35rem 0.6rem;
+  outline:none;
+  cursor:pointer;
+}
+
+/* ═══════════════════════════════════════════════════════
+   ПРЕДУПРЕЖДЕНИЯ / ЗАМЕТКИ
+═══════════════════════════════════════════════════════ */
+.note{
+  border-left:3px solid var(--accent);
+  background:rgba(255,107,53,0.05);
+  border-radius:0 var(--radius2) var(--radius2) 0;
+  padding:0.9rem 1.1rem;
+  margin:1rem 0;
+  font-size:0.87rem;
+  color:var(--text2);
+}
+.note.teal{border-left-color:var(--teal);background:rgba(0,212,170,0.05)}
+.note.yellow{border-left-color:var(--yellow);background:rgba(255,209,102,0.05)}
+.note.red{border-left-color:var(--red);background:rgba(255,77,106,0.05)}
+.note strong{color:#fff}
+.note .note-icon{color:var(--accent);font-weight:700;margin-right:0.4rem}
+.note.teal .note-icon{color:var(--teal)}
+.note.yellow .note-icon{color:var(--yellow)}
+.note.red .note-icon{color:var(--red)}
+
+/* ═══════════════════════════════════════════════════════
+   БЫСТРЫЙ СТАРТ - СТЕПЫ
+═══════════════════════════════════════════════════════ */
+.steps{counter-reset:step;display:flex;flex-direction:column;gap:0}
+.step{
+  display:flex;gap:1.5rem;
+  padding:1.2rem 0;
+  border-bottom:1px solid rgba(255,107,53,0.07);
+  counter-increment:step;
+  position:relative;
+}
+.step:last-child{border-bottom:none}
+.step-num{
+  width:36px;height:36px;flex-shrink:0;
+  background:rgba(255,107,53,0.1);
+  border:1px solid rgba(255,107,53,0.25);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Oxanium',monospace;
+  font-weight:700;
+  font-size:0.85rem;
+  color:var(--accent);
+}
+.step-content{flex:1}
+.step-title{
+  font-family:'Oxanium',monospace;
+  font-weight:700;
+  color:#fff;
+  font-size:0.95rem;
+  margin-bottom:0.3rem;
+}
+.step-desc{font-size:0.85rem;color:var(--text2)}
+
+/* ═══════════════════════════════════════════════════════
+   СИНТАКСИС — ТАБЛИЦА СРАВНЕНИЯ
+═══════════════════════════════════════════════════════ */
+.syntax-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:1rem;
+}
+.syntax-card{
+  background:var(--card2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+.syntax-card-title{
+  padding:0.6rem 1rem;
+  background:rgba(255,107,53,0.06);
+  border-bottom:1px solid var(--border);
+  font-family:'Oxanium',monospace;
+  font-size:0.8rem;
+  font-weight:700;
+  color:var(--accent);
+  letter-spacing:0.05em;
+}
+.syntax-card pre{padding:0.9rem 1rem;font-size:0.79rem}
+
+/* ═══════════════════════════════════════════════════════
+   BADGE / PILL
+═══════════════════════════════════════════════════════ */
+.badge{
+  display:inline-flex;align-items:center;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.7rem;font-weight:700;
+  padding:0.15rem 0.5rem;
+  border-radius:4px;
+  vertical-align:middle;
+}
+.badge-req{background:rgba(255,77,106,0.15);color:var(--red);border:1px solid rgba(255,77,106,0.25)}
+.badge-opt{background:rgba(0,212,170,0.1);color:var(--teal);border:1px solid rgba(0,212,170,0.2)}
+.badge-new{background:rgba(155,114,207,0.15);color:var(--purple);border:1px solid rgba(155,114,207,0.25)}
+
+/* ═══════════════════════════════════════════════════════
+   ПОИСК ХАЙЛАЙТ
+═══════════════════════════════════════════════════════ */
+mark{
+  background:rgba(255,107,53,0.35);
+  color:#fff;
+  border-radius:2px;
+  padding:0 0.1em;
+}
+.search-no-results{
+  display:none;
+  text-align:center;
+  padding:3rem;
+  color:var(--text3);
+  font-size:0.9rem;
+}
+
+/* ═══════════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════════ */
+.footer{
+  padding:2rem 3rem;
+  border-top:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:1rem;
+}
+.footer-logo{
+  font-family:'Oxanium',monospace;
+  font-weight:700;
+  font-size:1rem;
+  color:var(--accent);
+}
+.footer-text{font-size:0.8rem;color:var(--text3)}
+
+/* ═══════════════════════════════════════════════════════
+   АДАПТАЦИЯ (МОБИЛЬНЫЕ)
+═══════════════════════════════════════════════════════ */
+@media(max-width:900px){
+  .sidebar{
+    transform:translateX(-100%);
+    transition:transform 0.3s ease;
+    z-index:200;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.open{display:block}
+  .mobile-header{display:flex}
+  .main-content{margin-left:0}
+  .hero{padding:2.5rem 1.5rem 2rem}
+  section{padding:2.5rem 1.5rem}
+  .calc-grid{grid-template-columns:1fr}
+  .footer{padding:1.5rem}
+}
+@media(max-width:600px){
+  .hero-stats{gap:1rem}
+  .cards-grid{grid-template-columns:1fr}
+  .syntax-grid{grid-template-columns:1fr}
+  pre{font-size:0.74rem}
+  .api-table{font-size:0.77rem}
+  .api-table td:first-child{white-space:normal}
+  .signal-grid{grid-template-columns:1fr}
+  h2.section-title{font-size:1.3rem}
+  .calc-row{flex-direction:column;align-items:flex-start}
+  .calc-input-wrap{width:100%}
+  .footer{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ════════════════════════════════════════════════════
+     БОКОВОЕ МЕНЮ
+════════════════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🐀</div>
+    <div>
+      <div class="logo-text">RatRovert</div>
+      <div class="logo-sub">Modding Guide</div>
+    </div>
+  </div>
+  <div class="sidebar-search">
+    <input type="text" id="search-input" placeholder="Поиск по документу..." autocomplete="off">
+  </div>
+  <nav id="sidebar-nav">
+    <div class="nav-group">
+      <div class="nav-group-title">Начало</div>
+      <a class="nav-link active" href="#intro"><span class="nav-dot"></span>Обзор</a>
+      <a class="nav-link" href="#quickstart"><span class="nav-dot"></span>Быстрый старт</a>
+      <a class="nav-link" href="#format"><span class="nav-dot"></span>Формат .retrovert</a>
+      <a class="nav-link" href="#manifest"><span class="nav-dot"></span>mod.json</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">Язык RatScript</div>
+      <a class="nav-link" href="#syntax"><span class="nav-dot"></span>Синтаксис</a>
+      <a class="nav-link" href="#types"><span class="nav-dot"></span>Типы данных</a>
+      <a class="nav-link" href="#entrypoints"><span class="nav-dot"></span>Точки входа</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">API Reference</div>
+      <a class="nav-link" href="#api-basic"><span class="nav-dot"></span>Базовые / Типы</a>
+      <a class="nav-link" href="#api-math"><span class="nav-dot"></span>Математика</a>
+      <a class="nav-link" href="#api-state"><span class="nav-dot"></span>Игрок (state)</a>
+      <a class="nav-link" href="#api-items"><span class="nav-dot"></span>Предметы</a>
+      <a class="nav-link" href="#api-enemies"><span class="nav-dot"></span>Враги / Спавн</a>
+      <a class="nav-link" href="#api-chat"><span class="nav-dot"></span>Чат</a>
+      <a class="nav-link" href="#api-files"><span class="nav-dot"></span>Файлы</a>
+      <a class="nav-link" href="#api-net"><span class="nav-dot"></span>Сеть / HTTP</a>
+      <a class="nav-link" href="#api-ai"><span class="nav-dot"></span>AI / LLM <span class="nav-badge">NEW</span></a>
+      <a class="nav-link" href="#api-camera"><span class="nav-dot"></span>Камера / Звук</a>
+      <a class="nav-link" href="#api-json"><span class="nav-dot"></span>JSON / Ключи</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">События</div>
+      <a class="nav-link" href="#events"><span class="nav-dot"></span>Все сигналы EventBus</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">Практика</div>
+      <a class="nav-link" href="#cookbook"><span class="nav-dot"></span>Рецепты (Cookbook)</a>
+      <a class="nav-link" href="#calculator"><span class="nav-dot"></span>Калькулятор статов <span class="nav-badge teal">β</span></a>
+      <a class="nav-link" href="#megaexample"><span class="nav-dot"></span>Полный пример мода</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">Справка</div>
+      <a class="nav-link" href="#security"><span class="nav-dot"></span>Безопасность</a>
+      <a class="nav-link" href="#errors"><span class="nav-dot"></span>Ошибки и отладка</a>
+      <a class="nav-link" href="#faq"><span class="nav-dot"></span>FAQ</a>
+    </div>
+  </nav>
+</aside>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- ════════════════════════════════════════════════════
+     ГЛАВНЫЙ КОНТЕНТ
+════════════════════════════════════════════════════ -->
+<div class="main-content">
+
+<!-- Мобильный хедер -->
+<header class="mobile-header">
+  <div style="display:flex;align-items:center;gap:0.6rem">
+    <div class="logo-icon" style="width:28px;height:28px;font-size:0.9rem">🐀</div>
+    <span style="font-family:'Oxanium',monospace;font-weight:700;font-size:0.9rem">RatRovert Modding</span>
+  </div>
+  <button class="hamburger" id="hamburger" aria-label="Меню">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<!-- ── HERO ─────────────────────────────────────────── -->
+<section class="hero" id="intro">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">RatRovert Modding Guide v1.0</div>
+    <h1 class="hero-title">
+      Полное руководство по<br>
+      <span class="accent">моддингу</span> и языку<br>
+      <span class="teal">RatScript</span>
+    </h1>
+    <p class="hero-desc">
+      Всё о создании модов для RatRovert: формат архива, синтаксис языка,
+      полный API с примерами, интерактивный калькулятор статов,
+      готовые рецепты и разбор мега-мода.
+    </p>
+    <div class="hero-tags">
+      <div class="tag t-accent">RatScript</div>
+      <div class="tag t-teal">EventBus</div>
+      <div class="tag t-yellow">AI / OpenRouter</div>
+      <div class="tag">Items API</div>
+      <div class="tag">Enemy Spawn</div>
+      <div class="tag">File API</div>
+      <div class="tag">HTTP API</div>
+      <div class="tag">Chat NPC</div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">50+</div>
+        <div class="hero-stat-label">API функций</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">30+</div>
+        <div class="hero-stat-label">Сигналов EventBus</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">12</div>
+        <div class="hero-stat-label">Рецептов кода</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">7</div>
+        <div class="hero-stat-label">Сцен врагов</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── БЫСТРЫЙ СТАРТ ──────────────────────────────── -->
+<section id="quickstart">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2 class="section-title">Быстрый старт за 30 секунд</h2>
+  </div>
+  <p class="section-desc">Минимальный мод от нуля до работающего — четыре шага.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Создайте папку мода</div>
+        <div class="step-desc">Имя папки — любое. Внутрь кладём <code>mod.json</code> и <code>scripts/main.rrs</code>.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Напишите минимальный mod.json</div>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">mod.json</span>
+            <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+          </div>
+<pre>{
+  <span class="s">"id"</span>:      <span class="s">"my_mod"</span>,
+  <span class="s">"name"</span>:    <span class="s">"Мой первый мод"</span>,
+  <span class="s">"version"</span>: <span class="s">"0.1.0"</span>,
+  <span class="s">"author"</span>:  <span class="s">"Я"</span>,
+  <span class="s">"entry"</span>:   <span class="s">"scripts/main.rrs"</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Напишите scripts/main.rrs</div>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">RatScript</span>
+            <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+          </div>
+<pre><span class="v">on_load</span> <span class="k">=</span> <span class="k">func</span><span class="p">()</span>
+    <span class="fn">chat_log</span><span class="p">(</span><span class="s">"Привет из мода!"</span><span class="p">)</span>
+<span class="k">end</span>
+
+<span class="v">on_tick</span> <span class="k">=</span> <span class="k">func</span><span class="p">(</span><span class="v">delta</span><span class="p">)</span>
+    <span class="c">-- вызывается каждый кадр</span>
+<span class="k">end</span></pre>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Запакуйте в .retrovert и импортируйте</div>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">bash</span>
+            <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+          </div>
+<pre><span class="c"># ВАЖНО: запускать из папки мода, не снаружи!</span>
+<span class="k">cd</span> my_mod
+<span class="fn">zip</span> <span class="n">-r</span> ../my_mod.retrovert mod.json scripts/ README.md</pre>
+        </div>
+        <p class="step-desc">Откройте в игре <strong>Моды → Импорт</strong>, выберите файл, включите тумблером и перезапустите Run.</p>
+        <div class="note red">
+          <span class="note-icon">⚠</span>
+          <strong>Частая ошибка:</strong> если упаковать как <code>zip -r mod.zip папка/</code>, то <code>mod.json</code> окажется внутри подпапки и мод не импортируется. Всегда пакуйте <strong>из папки мода</strong>.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ФОРМАТ ──────────────────────────────────────── -->
+<section id="format">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2 class="section-title">Формат файла .retrovert</h2>
+  </div>
+  <p class="section-desc"><code>.retrovert</code> — это обычный ZIP-архив с другим расширением.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-lang">Структура архива</span>
+    </div>
+<pre>my_mod.retrovert  <span class="c">← ZIP-архив</span>
+├── mod.json          <span class="c">← обязательно (в корне!)</span>
+├── icon.png          <span class="c">← 64×64 или 128×128 PNG (опционально)</span>
+├── README.md         <span class="c">← описание для пользователей</span>
+├── scripts/
+│   ├── main.rrs      <span class="c">← точка входа (путь в "entry")</span>
+│   └── utils.rrs     <span class="c">← вспомогательные файлы</span>
+├── assets/           <span class="c">← любые ресурсы мода</span>
+└── data/             <span class="c">← папка для файловой песочницы</span></pre>
+  </div>
+
+  <h3>Куда устанавливается мод</h3>
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-lang">Пути установки</span>
+    </div>
+<pre>Linux:   ~/.local/share/godot/app_userdata/RatRovert/mods/<span class="v">&lt;uuid&gt;</span>/
+Windows: %APPDATA%/Godot/app_userdata/RatRovert/mods/<span class="v">&lt;uuid&gt;</span>/
+Mac:     ~/Library/Application Support/Godot/app_userdata/RatRovert/mods/<span class="v">&lt;uuid&gt;</span>/</pre>
+  </div>
+  <p style="font-size:0.87rem;color:var(--text2)"><code>&lt;uuid&gt;</code> генерируется из поля <code>id</code> в <code>mod.json</code> и остаётся стабильным.</p>
+</section>
+
+<!-- ── MOD.JSON ──────────────────────────────────── -->
+<section id="manifest">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2 class="section-title">mod.json — манифест</h2>
+  </div>
+  <p class="section-desc">Обязательные поля: <code>id</code>, <code>name</code>, <code>version</code>, <code>entry</code>. Остальное опционально.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-lang">mod.json — полный пример</span>
+      <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+    </div>
+<pre>{
+  <span class="s">"id"</span>:               <span class="s">"darkrift"</span>,          <span class="c">// уникальный, латиница/цифры/_-</span>
+  <span class="s">"name"</span>:             <span class="s">"Dark Rift"</span>,
+  <span class="s">"version"</span>:          <span class="s">"1.2.0"</span>,             <span class="c">// semver</span>
+  <span class="s">"author"</span>:           <span class="s">"Имя автора"</span>,
+  <span class="s">"description"</span>:      <span class="s">"Короткое описание."</span>,
+  <span class="s">"entry"</span>:            <span class="s">"scripts/main.rrs"</span>,
+  <span class="s">"icon"</span>:             <span class="s">"icon.png"</span>,           <span class="c">// 64×64 или 128×128 PNG</span>
+  <span class="s">"tags"</span>:             [<span class="s">"weapon"</span>, <span class="s">"ai"</span>, <span class="s">"chat"</span>],
+  <span class="s">"min_game_version"</span>: <span class="s">"1.0.0"</span>,
+  <span class="s">"permissions"</span>: {
+    <span class="s">"network"</span>: <span class="k">true</span>,   <span class="c">// http_get/http_post/ai_chat</span>
+    <span class="s">"files"</span>:   <span class="k">true</span>    <span class="c">// file_read/file_write</span>
+  }
+}</pre>
+  </div>
+
+  <table class="api-table">
+    <tr><th>Поле</th><th>Тип</th><th>Обяз.</th><th>Описание</th></tr>
+    <tr><td>id</td><td>string</td><td><span class="badge badge-req">req</span></td><td>Уникальный идентификатор. Только латиница, цифры, _ и -</td></tr>
+    <tr><td>name</td><td>string</td><td><span class="badge badge-req">req</span></td><td>Отображаемое имя в списке модов</td></tr>
+    <tr><td>version</td><td>string</td><td><span class="badge badge-req">req</span></td><td>Версия в формате semver: 1.0.0</td></tr>
+    <tr><td>entry</td><td>string</td><td><span class="badge badge-req">req</span></td><td>Путь к главному скрипту относительно корня архива</td></tr>
+    <tr><td>author</td><td>string</td><td><span class="badge badge-opt">opt</span></td><td>Имя автора</td></tr>
+    <tr><td>description</td><td>string</td><td><span class="badge badge-opt">opt</span></td><td>Описание в каталоге модов</td></tr>
+    <tr><td>icon</td><td>string</td><td><span class="badge badge-opt">opt</span></td><td>Путь к PNG-иконке внутри архива</td></tr>
+    <tr><td>tags</td><td>array</td><td><span class="badge badge-opt">opt</span></td><td>Теги для фильтрации в каталоге</td></tr>
+    <tr><td>min_game_version</td><td>string</td><td><span class="badge badge-opt">opt</span></td><td>Минимальная версия игры. Если ниже — мод не загрузится</td></tr>
+    <tr><td>permissions.network</td><td>bool</td><td><span class="badge badge-opt">opt</span></td><td>Разрешает http_get, http_post, ai_chat</td></tr>
+    <tr><td>permissions.files</td><td>bool</td><td><span class="badge badge-opt">opt</span></td><td>Разрешает file_read, file_write и т.д.</td></tr>
+  </table>
+</section>
+
+<!-- ── СИНТАКСИС ───────────────────────────────────── -->
+<section id="syntax">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2 class="section-title">Синтаксис RatScript</h2>
+  </div>
+  <p class="section-desc">Tree-walking интерпретатор. Синтаксис вдохновлён Lua + GDScript. Скрипт не компилируется — выполняется строка за строкой.</p>
+
+  <div class="syntax-grid">
+    <div class="syntax-card">
+      <div class="syntax-card-title">Переменные</div>
+<pre><span class="k">let</span> <span class="v">x</span> = <span class="n">10</span>           <span class="c">-- неизменяемая</span>
+<span class="k">var</span> <span class="v">y</span> = <span class="n">3.14</span>         <span class="c">-- изменяемая</span>
+<span class="k">var</span> <span class="v">name</span> = <span class="s">"Rat"</span>
+<span class="k">var</span> <span class="v">flag</span> = <span class="k">true</span>
+<span class="k">var</span> <span class="v">empty</span> = <span class="k">nil</span></pre>
+    </div>
+    <div class="syntax-card">
+      <div class="syntax-card-title">Условия</div>
+<pre><span class="k">if</span> <span class="v">hp</span> &lt; <span class="n">1</span> <span class="k">then</span>
+    <span class="fn">heal</span><span class="p">(</span><span class="n">1</span><span class="p">)</span>
+<span class="k">elseif</span> <span class="v">hp</span> &lt; <span class="n">3</span> <span class="k">then</span>
+    <span class="fn">log</span><span class="p">(</span><span class="s">"low hp"</span><span class="p">)</span>
+<span class="k">else</span>
+    <span class="fn">log</span><span class="p">(</span><span class="s">"ok"</span><span class="p">)</span>
+<span class="k">end</span></pre>
+    </div>
+    <div class="syntax-card">
+      <div class="syntax-card-title">Циклы</div>
+<pre><span class="k">while</span> <span class="v">x</span> &gt; <span class="n">0</span> <span class="k">do</span>
+    <span class="v">x</span> = <span class="v">x</span> - <span class="n">1</span>
+<span class="k">end</span>
+
+<span class="k">for</span> <span class="v">i</span> <span class="k">in</span> <span class="fn">range</span><span class="p">(</span><span class="n">0</span>, <span class="n">10</span><span class="p">)</span> <span class="k">do</span>
+    <span class="fn">log</span><span class="p">(</span><span class="v">i</span><span class="p">)</span>   <span class="c">-- 0..9</span>
+<span class="k">end</span>
+
+<span class="k">for</span> <span class="v">e</span> <span class="k">in</span> <span class="fn">enemies</span><span class="p">()</span> <span class="k">do</span>
+    <span class="fn">log</span><span class="p">(</span><span class="v">e</span><span class="p">.</span><span class="v">type</span><span class="p">)</span>
+<span class="k">end</span></pre>
+    </div>
+    <div class="syntax-card">
+      <div class="syntax-card-title">Функции</div>
+<pre><span class="k">func</span> <span class="fn">add</span><span class="p">(</span><span class="v">a</span>, <span class="v">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="v">a</span> + <span class="v">b</span>
+<span class="k">end</span>
+
+<span class="c">-- лямбда</span>
+<span class="k">let</span> <span class="v">mul</span> = <span class="k">func</span><span class="p">(</span><span class="v">a</span>, <span class="v">b</span><span class="p">)</span>
+    <span class="k">return</span> <span class="v">a</span> * <span class="v">b</span>
+<span class="k">end</span></pre>
+    </div>
+    <div class="syntax-card">
+      <div class="syntax-card-title">Коллекции</div>
+<pre><span class="c">-- массив</span>
+<span class="k">var</span> <span class="v">arr</span> = <span class="p">[</span><span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span><span class="p">]</span>
+<span class="fn">log</span><span class="p">(</span><span class="v">arr</span><span class="p">[</span><span class="n">0</span><span class="p">])</span>        <span class="c">-- 1</span>
+
+<span class="c">-- словарь</span>
+<span class="k">var</span> <span class="v">d</span> = <span class="p">{</span> <span class="v">id</span> = <span class="s">"x"</span>, <span class="v">val</span> = <span class="n">5</span> <span class="p">}</span>
+<span class="fn">log</span><span class="p">(</span><span class="v">d</span><span class="p">[</span><span class="s">"id"</span><span class="p">])</span>      <span class="c">-- "x"</span>
+<span class="fn">log</span><span class="p">(</span><span class="v">d</span><span class="p">.</span><span class="v">val</span><span class="p">)</span>        <span class="c">-- 5</span></pre>
+    </div>
+    <div class="syntax-card">
+      <div class="syntax-card-title">Операторы</div>
+<pre><span class="c">-- арифметика</span>
++  -  *  /  %
+
+<span class="c">-- сравнения</span>
+==  !=  &lt;  &gt;  &lt;=  &gt;=
+
+<span class="c">-- логика</span>
+<span class="k">and</span>  <span class="k">or</span>  <span class="k">not</span>
+
+<span class="c">-- конкатенация строк</span>
+<span class="s">"Этаж: "</span> .. <span class="fn">str</span><span class="p">(</span><span class="v">n</span><span class="p">)</span>  <span class="c">-- "Этаж: 3"</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ── ТИПЫ ───────────────────────────────────────── -->
+<section id="types">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2 class="section-title">Типы данных</h2>
+  </div>
+  <table class="api-table">
+    <tr><th>Тип</th><th>Пример</th><th>Описание</th></tr>
+    <tr><td>int</td><td><code>42</code>, <code>-5</code>, <code>0</code></td><td>Целое число</td></tr>
+    <tr><td>float</td><td><code>3.14</code>, <code>-0.5</code></td><td>Число с плавающей точкой</td></tr>
+    <tr><td>bool</td><td><code>true</code>, <code>false</code></td><td>Булево значение</td></tr>
+    <tr><td>string</td><td><code>"hello"</code>, <code>'world'</code></td><td>Строка. Одинарные и двойные кавычки равнозначны</td></tr>
+    <tr><td>nil</td><td><code>nil</code></td><td>Отсутствие значения. Проверяйте: <code>if x != nil then</code></td></tr>
+    <tr><td>Vector2</td><td><code>vec(10, 20)</code></td><td>Вектор. Поля: <code>.x</code>, <code>.y</code>, <code>.position</code></td></tr>
+    <tr><td>Array</td><td><code>[1, 2, 3]</code></td><td>Список. Индекс с 0. Функция <code>len(arr)</code></td></tr>
+    <tr><td>Dictionary</td><td><code>{id="x", val=5}</code></td><td>Словарь. Ключи без кавычек при объявлении</td></tr>
+  </table>
+  <div class="note">
+    <span class="note-icon">ℹ</span>
+    <strong>Совет:</strong> Функция <code>str(value)</code> приводит любое значение к строке. Полезно для конкатенации: <code>"Убийств: " .. str(kills)</code>
+  </div>
+</section>
+
+<!-- ── ТОЧКИ ВХОДА ─────────────────────────────────── -->
+<section id="entrypoints">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <h2 class="section-title">Точки входа и события</h2>
+  </div>
+  <p class="section-desc">Три глобальных переменные-функции и подписки через <code>on()</code>.</p>
+
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-icon orange">▶</div>
+      <div class="card-title">on_load</div>
+      <div class="card-desc">Вызывается один раз при включении мода. Сюда — регистрация предметов, загрузка данных, первые сообщения.</div>
+    </div>
+    <div class="card teal">
+      <div class="card-icon teal">⟳</div>
+      <div class="card-title">on_tick</div>
+      <div class="card-desc">Вызывается каждый кадр. Аргумент <code>delta</code> — время в секундах между кадрами. Это <strong>горячий путь</strong> — не делайте тут дорогих операций.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon red">■</div>
+      <div class="card-title">on_unload</div>
+      <div class="card-desc">Вызывается при отключении или выгрузке мода. Сохраняйте тут данные через <code>file_write()</code>.</div>
+    </div>
+    <div class="card teal">
+      <div class="card-icon teal">📡</div>
+      <div class="card-title">on("сигнал", func)</div>
+      <div class="card-desc">Подписка на сигнал EventBus. Аргументы функции соответствуют аргументам сигнала. Работает в любом месте скрипта.</div>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-lang">RatScript — все точки входа</span>
+      <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+    </div>
+<pre><span class="c">-- Инициализация</span>
+<span class="v">on_load</span> = <span class="k">func</span><span class="p">()</span>
+    <span class="fn">chat_log</span><span class="p">(</span><span class="s">"Мод запущен"</span><span class="p">)</span>
+<span class="k">end</span>
+
+<span class="c">-- Каждый кадр (delta = секунды с прошлого кадра)</span>
+<span class="v">on_tick</span> = <span class="k">func</span><span class="p">(</span><span class="v">delta</span><span class="p">)</span>
+    <span class="c">-- таймер</span>
+<span class="k">end</span>
+
+<span class="c">-- При выключении</span>
+<span class="v">on_unload</span> = <span class="k">func</span><span class="p">()</span>
+    <span class="fn">file_write</span><span class="p">(</span><span class="s">"data.json"</span>, <span class="fn">json_stringify</span><span class="p">(</span><span class="v">my_data</span><span class="p">))</span>
+<span class="k">end</span>
+
+<span class="c">-- Подписка на событие</span>
+<span class="fn">on</span><span class="p">(</span><span class="s">"enemy_died"</span>, <span class="k">func</span><span class="p">(</span><span class="v">pos</span>, <span class="v">enemy_type</span><span class="p">)</span>
+    <span class="fn">chat_log</span><span class="p">(</span><span class="s">"Убит: "</span> .. <span class="v">enemy_type</span><span class="p">)</span>
+<span class="k">end</span><span class="p">)</span>
+
+<span class="c">-- Альтернативный синтаксис подписки</span>
+<span class="fn">on</span><span class="p">(</span><span class="s">"player_spawned"</span><span class="p">)</span> <span class="k">func</span><span class="p">(</span><span class="v">player</span><span class="p">)</span>
+    <span class="fn">chat_log</span><span class="p">(</span><span class="s">"Игрок появился!"</span><span class="p">)</span>
+<span class="k">end</span></pre>
+  </div>
+  <div class="note yellow">
+    <span class="note-icon">⚡</span>
+    <strong>on_tick и производительность:</strong> избегайте в on_tick дорогих операций (file_write, ai_chat, spawn). Используйте таймеры: накапливайте <code>t = t + delta</code> и выполняйте действие только когда <code>t >= 5.0</code>, затем сбрасывайте <code>t = 0</code>.
+  </div>
+</section>
+
+<!-- ── API: БАЗОВЫЕ ────────────────────────────────── -->
+<section id="api-basic">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <h2 class="section-title">API: Лог, строки, утилиты</h2>
+  </div>
+  <table class="api-table">
+    <tr><th>Функция</th><th>Возврат</th><th>Описание</th></tr>
+    <tr><td>log(...)</td><td>—</td><td>Печатает в системный лог Godot</td></tr>
+    <tr><td>print(...)</td><td>—</td><td>Синоним <code>log()</code></td></tr>
+    <tr><td>str(value)</td><td><span class="ret">string</span></td><td>Приводит любое значение к строке</td></tr>
+    <tr><td>len(value)</td><td><span class="ret">int</span></td><td>Длина строки, массива или словаря</td></tr>
+    <tr><td>lower(s)</td><td><span class="ret">string</span></td><td>Перевод в нижний регистр</td></tr>
+    <tr><td>upper(s)</td><td><span class="ret">string</span></td><td>Перевод в верхний регистр</td></tr>
+    <tr><td>contains(s, sub)</td><td><span class="ret">bool</span></td><td>Проверяет, содержит ли строка подстроку</td></tr>
+    <tr><td>replace(s, from, to)</td><td><span class="ret">string</span></td><td>Замена подстроки</td></tr>
+    <tr><td>range(n)</td><td><span class="ret">Array</span></td><td>Массив <code>[0..n)</code></td></tr>
+    <tr><td>range(a, b)</td><td><span class="ret">Array</span></td><td>Массив <code>[a..b)</code></td></tr>
+    <tr><td>vec(x, y)</td><td><span class="ret">Vector2</span></td><td>Создаёт вектор</td></tr>
+    <tr><td>now()</td><td><span class="ret">float</span></td><td>Текущее время в секундах</td></tr>
+    <tr><td>keys(dict)</td><td><span class="ret">Array</span></td><td>Массив ключей словаря</td></tr>
+  </table>
+</section>
+
+<!-- ── API: МАТЕМАТИКА ─────────────────────────────── -->
+<section id="api-math">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <h2 class="section-title">API: Математика</h2>
+  </div>
+  <table class="api-table">
+    <tr><th>Функция</th><th>Возврат</th><th>Описание</th></tr>
+    <tr><td>clamp(v, lo, hi)</td><td><span class="ret">number</span></td><td>Ограничивает значение диапазоном [lo..hi]</td></tr>
+    <tr><td>rand()</td><td><span class="ret">float</span></td><td>Случайное число от 0.0 до 1.0</td></tr>
+    <tr><td>randi(a, b)</td><td><span class="ret">int</span></td><td>Случайное целое из [a..b] включительно</td></tr>
+    <tr><td>sin(x)</td><td><span class="ret">float</span></td><td>Синус (аргумент в радианах)</td></tr>
+    <tr><td>cos(x)</td><td><span class="ret">float</span></td><td>Косинус</td></tr>
+    <tr><td>tan(x)</td><td><span class="ret">float</span></td><td>Тангенс</td></tr>
+    <tr><td>sqrt(x)</td><td><span class="ret">float</span></td><td>Квадратный корень</td></tr>
+    <tr><td>abs(x)</td><td><span class="ret">number</span></td><td>Модуль числа</td></tr>
+    <tr><td>floor(x)</td><td><span class="ret">int</span></td><td>Округление вниз</td></tr>
+    <tr><td>ceil(x)</td><td><span class="ret">int</span></td><td>Округление вверх</td></tr>
+    <tr><td>round(x)</td><td><span class="ret">int</span></td><td>Округление до ближайшего</td></tr>
+    <tr><td>min(a, b)</td><td><span class="ret">number</span></td><td>Меньшее из двух</td></tr>
+    <tr><td>max(a, b)</td><td><span class="ret">number</span></td><td>Большее из двух</td></tr>
+    <tr><td>dist(a, b)</td><td><span class="ret">float</span></td><td>Расстояние между двумя Vector2</td></tr>
+  </table>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-lang">Примеры</span>
+      <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+    </div>
+<pre><span class="c">-- Случайный элемент массива</span>
+<span class="k">let</span> <span class="v">phrases</span> = <span class="p">[</span><span class="s">"Привет"</span>, <span class="s">"Пока"</span>, <span class="s">"Стой"</span><span class="p">]</span>
+<span class="k">let</span> <span class="v">line</span> = <span class="v">phrases</span><span class="p">[</span><span class="fn">randi</span><span class="p">(</span><span class="n">0</span>, <span class="fn">len</span><span class="p">(</span><span class="v">phrases</span><span class="p">)</span> - <span class="n">1</span><span class="p">)]</span>
+
+<span class="c">-- Расстояние между игроком и врагом</span>
+<span class="k">let</span> <span class="v">p</span> = <span class="fn">player</span><span class="p">()</span>
+<span class="k">for</span> <span class="v">e</span> <span class="k">in</span> <span class="fn">enemies</span><span class="p">()</span> <span class="k">do</span>
+    <span class="k">if</span> <span class="fn">dist</span><span class="p">(</span><span class="v">p</span><span class="p">.</span><span class="v">position</span>, <span class="v">e</span><span class="p">.</span><span class="v">position</span><span class="p">)</span> &lt; <span class="n">150</span> <span class="k">then</span>
+        <span class="fn">chat_log</span><span class="p">(</span><span class="s">"Враг близко!"</span><span class="p">)</span>
+    <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c">-- Зажим значения</span>
+<span class="k">var</span> <span class="v">speed</span> = <span class="fn">clamp</span><span class="p">(</span><span class="v">raw_speed</span>, <span class="n">50</span>, <span class="n">400</span><span class="p">)</span></pre>
+  </div>
+</section>
+
+<!-- ── API: STATE ──────────────────────────────────── -->
+<section id="api-state">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <h2 class="section-title">API: Состояние игрока (state)</h2>
+  </div>
+  <p class="section-desc"><code>state</code> — это объект (не функция!). Вызывайте его методы через точку.</p>
+
+  <h3>Методы</h3>
+  <table class="api-table">
+    <tr><th>Метод</th><th>Возврат</th><th>Описание</th></tr>
+    <tr><td>state.get("field")</td><td><span class="ret">any</span></td><td>Читает поле GameState</td></tr>
+    <tr><td>state.set("field", v)</td><td>—</td><td>Устанавливает поле напрямую. Осторожно!</td></tr>
+    <tr><td>state.add("field", n)</td><td>—</td><td>Прибавляет n к полю</td></tr>
+    <tr><td>state.add_coins(n)</td><td>—</td><td>Шорткат для монет</td></tr>
+    <tr><td>state.add_bombs(n)</td><td>—</td><td>Шорткат для бомб</td></tr>
+    <tr><td>state.add_keys(n)</td><td>—</td><td>Шорткат для ключей</td></tr>
+    <tr><td>state.heal(n)</td><td>—</td><td>Восстанавливает красные сердечки</td></tr>
+    <tr><td>state.heal_soul(n)</td><td>—</td><td>Восстанавливает соул-сердечки</td></tr>
+    <tr><td>state.damage(n)</td><td>—</td><td>Наносит урон игроку</td></tr>
+  </table>
+
+  <h3>Поля GameState</h3>
+  <table class="api-table">
+    <tr><th>Поле</th><th>Тип</th><th>Описание</th></tr>
+    <tr><td>hp_red</td><td>int</td><td>Текущие красные сердечки</td></tr>
+    <tr><td>hp_soul</td><td>int</td><td>Соул-сердечки</td></tr>
+    <tr><td>hp_max</td><td>int</td><td>Максимум здоровья</td></tr>
+    <tr><td>coins</td><td>int</td><td>Монеты</td></tr>
+    <tr><td>bombs</td><td>int</td><td>Бомбы</td></tr>
+    <tr><td>keys</td><td>int</td><td>Ключи</td></tr>
+    <tr><td>player_speed</td><td>float</td><td>Скорость движения (базовая ~150)</td></tr>
+    <tr><td>player_damage</td><td>float</td><td>Урон слезинок (базовый ~3.5)</td></tr>
+    <tr><td>tear_rate</td><td>float</td><td>Темп стрельбы (выстрелов/сек)</td></tr>
+    <tr><td>tear_speed</td><td>float</td><td>Скорость полёта слёз</td></tr>
+    <tr><td>tear_range</td><td>float</td><td>Дальность слёз в пикселях</td></tr>
+    <tr><td>luck</td><td>float</td><td>Удача (влияет на дроп)</td></tr>
+    <tr><td>auto_aim</td><td>bool</td><td>Авто-прицеливание</td></tr>
+    <tr><td>run_floor</td><td>int</td><td>Текущий этаж</td></tr>
+    <tr><td>run_seed</td><td>int</td><td>Сид текущего забега</td></tr>
+    <tr><td>kills_this_run</td><td>int</td><td>Убийств в этом забеге</td></tr>
+    <tr><td>coins_collected_total</td><td>int</td><td>Монет собрано всего</td></tr>
+  </table>
+</section>
+
+<!-- ── API: ПРЕДМЕТЫ ───────────────────────────────── -->
+<section id="api-items">
+  <div class="section-header">
+    <span class="section-num">10</span>
+    <h2 class="section-title">API: Предметы</h2>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-lang">Регистрация предмета</span>
+      <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+    </div>
+<pre><span class="fn">item</span><span class="p">({</span>
+    <span class="v">id</span>          = <span class="s">"my_item"</span>,
+    <span class="v">name</span>        = <span class="s">"Мой предмет"</span>,
+    <span class="v">description</span> = <span class="s">"+1 урон, +25% темп стрельбы"</span>,
+    <span class="v">stats</span> = <span class="p">{</span>
+        <span class="v">player_damage</span> = <span class="n">1.0</span>,
+        <span class="v">tear_rate</span>     = <span class="n">0.25</span>,
+        <span class="v">luck</span>          = <span class="n">0.5</span>
+    <span class="p">}</span>
+<span class="p">})</span>
+
+<span class="c">-- выдать игроку сразу</span>
+<span class="fn">grant</span><span class="p">(</span><span class="s">"my_item"</span><span class="p">)</span></pre>
+  </div>
+
+  <h3>Поддерживаемые поля stats</h3>
+  <table class="api-table">
+    <tr><th>Поле stats</th><th>Тип</th><th>Эффект</th></tr>
+    <tr><td>player_damage</td><td>float</td><td>Добавляется к урону слезинок</td></tr>
+    <tr><td>tear_rate</td><td>float</td><td>+N выстрелов/сек (0.25 = +25%)</td></tr>
+    <tr><td>tear_speed</td><td>float</td><td>Скорость полёта слёз (отрицательное — медленнее)</td></tr>
+    <tr><td>tear_range</td><td>float</td><td>Дальность в пикселях (0.35 = +35%)</td></tr>
+    <tr><td>luck</td><td>float</td><td>Добавляется к удаче</td></tr>
+    <tr><td>player_speed</td><td>float</td><td>Добавляется к скорости движения</td></tr>
+    <tr><td>hp_max</td><td>int</td><td>Увеличивает максимум HP</td></tr>
+    <tr><td>hp_red</td><td>int</td><td>Добавляет/отнимает красные сердечки</td></tr>
+  </table>
+
+  <div class="note teal">
+    <span class="note-icon">💡</span>
+    Флаги вроде <code>auto_aim</code> нужно устанавливать вручную через <code>state.set("auto_aim", true)</code> в обработчике <code>on("item_picked_up")</code>, а не через поле stats.
+  </div>
+</section>
+
+<!-- ── API: ВРАГИ ──────────────────────────────────── -->
+<section id="api-enemies">
+  <div class="section-header">
+    <span class="section-num">11</span>
+    <h2 class="section-title">API: Враги и спавн</h2>
+  </div>
+
+  <table class="api-table">
+    <tr><th>Функция</th><th>Возврат</th><th>Описание</th></tr>
+    <tr><td>spawn(scene_path, pos)</td><td>—</td><td>Спавнит сцену в текущей комнате. pos — Vector2</td></tr>
+    <tr><td>enemies()</td><td><span class="ret">Array</span></td><td>Массив живых врагов. Поля: <code>.position</code>, <code>.type</code></td></tr>
+    <tr><td>player()</td><td><span class="ret">Node2D</span></td><td>Ссылка на игрока. Поля: <code>.position</code>. Может быть nil!</td></tr>
+    <tr><td>damage_in_radius(pos, r, dmg)</td><td>—</td><td>Урон всем врагам в радиусе r от точки pos</td></tr>
+  </table>
+
+  <h3>Стандартные сцены врагов</h3>
+  <div class="cards-grid">
+    <div class="card"><div class="card-icon red">🪰</div><div class="card-title">Fly</div><div class="card-desc"><code>res://scenes/enemies/Fly.tscn</code><br>Быстрая, слабая. Этаж 1.</div></div>
+    <div class="card"><div class="card-icon red">👾</div><div class="card-title">Gaper</div><div class="card-desc"><code>res://scenes/enemies/Gaper.tscn</code><br>Медленный, прочный. Этаж 2.</div></div>
+    <div class="card"><div class="card-icon red">💨</div><div class="card-title">Pooter</div><div class="card-desc"><code>res://scenes/enemies/Pooter.tscn</code><br>Летает, средний. Этаж 3.</div></div>
+    <div class="card"><div class="card-icon red">🕷</div><div class="card-title">Spider</div><div class="card-desc"><code>res://scenes/enemies/Spider.tscn</code><br>Прыгает, опасный. Этаж 4.</div></div>
+    <div class="card"><div class="card-icon red">🦘</div><div class="card-title">Leaper</div><div class="card-desc"><code>res://scenes/enemies/Leaper.tscn</code><br>Стремительный прыгун. Этаж 5+.</div></div>
+    <div class="card"><div class="card-icon red">👑</div><div class="card-title">Larry (босс)</div><div class="card-desc"><code>res://scenes/enemies/bosses/Larry.tscn</code></div></div>
+    <div class="card"><div class="card-icon red">👑</div><div class="card-title">Monstro (босс)</div><div class="card-desc"><code>res://scenes/enemies/bosses/Monstro.tscn</code></div></div>
+  </div>
+
+  <div class="note yellow">
+    <span class="note-icon">⚠</span>
+    <strong>О патфайндинге:</strong> встроенные сцены врагов содержат собственный AI с навигацией по NavMesh. Мод управляет только <em>позицией спавна</em> и <em>типом</em> врага — встроенный AI сам находит игрока после появления. Кастомный патфайндинг из RatScript недоступен.
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-lang">Примеры спавна</span>
+      <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+    </div>
+<pre><span class="c">-- Спавн рядом с игроком со случайным смещением</span>
+<span class="k">func</span> <span class="fn">spawn_near</span><span class="p">(</span><span class="v">scene</span>, <span class="v">spread</span><span class="p">)</span>
+    <span class="k">let</span> <span class="v">p</span> = <span class="fn">player</span><span class="p">()</span>
+    <span class="k">if</span> <span class="v">p</span> == <span class="k">nil</span> <span class="k">then</span> <span class="k">return</span> <span class="k">end</span>
+    <span class="fn">spawn</span><span class="p">(</span><span class="v">scene</span>, <span class="v">p</span><span class="p">.</span><span class="v">position</span> + <span class="fn">vec</span><span class="p">(</span><span class="fn">randi</span><span class="p">(</span>-<span class="v">spread</span>, <span class="v">spread</span><span class="p">)</span>, <span class="fn">randi</span><span class="p">(</span>-<span class="v">spread</span>, <span class="v">spread</span><span class="p">)))</span>
+<span class="k">end</span>
+
+<span class="c">-- Спавн по углам комнаты (стандартная комната ~1040×608)</span>
+<span class="k">func</span> <span class="fn">spawn_corners</span><span class="p">(</span><span class="v">scene</span><span class="p">)</span>
+    <span class="k">let</span> <span class="v">p</span> = <span class="fn">player</span><span class="p">()</span>
+    <span class="k">if</span> <span class="v">p</span> == <span class="k">nil</span> <span class="k">then</span> <span class="k">return</span> <span class="k">end</span>
+    <span class="k">var</span> <span class="v">offs</span> = <span class="p">[</span>
+        <span class="fn">vec</span><span class="p">(</span>-<span class="n">420</span>, -<span class="n">220</span><span class="p">)</span>, <span class="fn">vec</span><span class="p">(</span><span class="n">420</span>, -<span class="n">220</span><span class="p">)</span>,
+        <span class="fn">vec</span><span class="p">(</span>-<span class="n">420</span>,  <span class="n">220</span><span class="p">)</span>, <span class="fn">vec</span><span class="p">(</span><span class="n">420</span>,  <span class="n">220</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">for</span> <span class="v">o</span> <span class="k">in</span> <span class="v">offs</span> <span class="k">do</span>
+        <span class="fn">spawn</span><span class="p">(</span><span class="v">scene</span>, <span class="v">p</span><span class="p">.</span><span class="v">position</span> + <span class="v">o</span><span class="p">)</span>
+    <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c">-- Взрыв: урон в радиусе 120px</span>
+<span class="k">let</span> <span class="v">center</span> = <span class="fn">player</span><span class="p">()</span><span class="p">.</span><span class="v">position</span>
+<span class="fn">damage_in_radius</span><span class="p">(</span><span class="v">center</span>, <span class="n">120</span>, <span class="n">3</span><span class="p">)</span></pre>
+  </div>
+</section>
+
+<!-- ── API: ЧАТ ────────────────────────────────────── -->
+<section id="api-chat">
+  <div class="section-header">
+    <span class="section-num">12</span>
+    <h2 class="section-title">API: Чат</h2>
+  </div>
+  <p class="section-desc">Чат — горизонтальное окно в верхней части. 5 видимых строк, буфер 200 сообщений. Цвет зависит от <code>kind</code>.</p>
+
+  <table class="api-table">
+    <tr><th>Функция</th><th>Описание</th></tr>
+    <tr><td>chat_send(sender, text, kind, id)</td><td>Полный вызов. kind: <code>info</code> <code>log</code> <code>system</code> <code>mod</code> <code>error</code> <code>enemy</code> <code>item</code></td></tr>
+    <tr><td>chat_log(text)</td><td>От имени мода, kind=mod</td></tr>
+    <tr><td>chat_error(text)</td><td>От имени мода, kind=error (красный)</td></tr>
+    <tr><td>chat_enemy(name, text, id)</td><td>Сообщение от врага/NPC</td></tr>
+    <tr><td>chat_item(name, text, id)</td><td>Сообщение от предмета</td></tr>
+    <tr><td>chat_clear()</td><td>Очистить чат</td></tr>
+    <tr><td>chat_show()</td><td>Показать чат</td></tr>
+    <tr><td>chat_hide()</td><td>Скрыть чат</td></tr>
+  </table>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-lang">Примеры</span>
+      <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+    </div>
+<pre><span class="c">-- Простое сообщение от мода</span>
+<span class="fn">chat_log</span><span class="p">(</span><span class="s">"Мод запущен!"</span><span class="p">)</span>
+
+<span class="c">-- Ошибка (красный цвет)</span>
+<span class="fn">chat_error</span><span class="p">(</span><span class="s">"Что-то пошло не так"</span><span class="p">)</span>
+
+<span class="c">-- NPC-враг говорит</span>
+<span class="fn">chat_enemy</span><span class="p">(</span><span class="s">"Тёмная Муха"</span>, <span class="s">"Я с тобой, носитель."</span>, <span class="s">"darkfly_1"</span><span class="p">)</span>
+
+<span class="c">-- Предмет говорит</span>
+<span class="fn">chat_item</span><span class="p">(</span><span class="s">"Кровавая Слеза"</span>, <span class="s">"Активирован!"</span>, <span class="s">"blood_tear"</span><span class="p">)</span>
+
+<span class="c">-- Полный формат с кастомным kind</span>
+<span class="fn">chat_send</span><span class="p">(</span><span class="s">"Голос"</span>, <span class="s">"Добро пожаловать в бездну."</span>, <span class="s">"info"</span>, <span class="s">"abyss_voice"</span><span class="p">)</span></pre>
+  </div>
+</section>
+
+<!-- ── API: ФАЙЛЫ ──────────────────────────────────── -->
+<section id="api-files">
+  <div class="section-header">
+    <span class="section-num">13</span>
+    <h2 class="section-title">API: Файлы (песочница)</h2>
+  </div>
+  <p class="section-desc">Нужно <code>permissions.files = true</code> в mod.json. Корень: <code>user://mods/&lt;uuid&gt;/data/</code></p>
+
+  <table class="api-table">
+    <tr><th>Функция</th><th>Возврат</th><th>Описание</th></tr>
+    <tr><td>file_read(path, default)</td><td><span class="ret">string</span></td><td>Читает файл. Если нет — возвращает default</td></tr>
+    <tr><td>file_write(path, content)</td><td>—</td><td>Записывает строку в файл</td></tr>
+    <tr><td>file_exists(path)</td><td><span class="ret">bool</span></td><td>Проверяет существование файла</td></tr>
+    <tr><td>file_list(rel_dir)</td><td><span class="ret">Array</span></td><td>Список файлов в папке</td></tr>
+    <tr><td>file_remove(path)</td><td>—</td><td>Удаляет файл</td></tr>
+  </table>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-lang">Сохранение и загрузка данных</span>
+      <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+    </div>
+<pre><span class="c">-- Сохранить счётчик</span>
+<span class="fn">file_write</span><span class="p">(</span><span class="s">"kills.json"</span>, <span class="fn">str</span><span class="p">(</span><span class="v">kills_total</span><span class="p">))</span>
+
+<span class="c">-- Загрузить обратно</span>
+<span class="k">let</span> <span class="v">raw</span> = <span class="fn">file_read</span><span class="p">(</span><span class="s">"kills.json"</span>, <span class="s">"0"</span><span class="p">)</span>
+<span class="k">var</span> <span class="v">kills</span> = <span class="fn">json_parse</span><span class="p">(</span><span class="v">raw</span><span class="p">)</span>
+<span class="k">if</span> <span class="v">kills</span> == <span class="k">nil</span> <span class="k">then</span> <span class="v">kills</span> = <span class="n">0</span> <span class="k">end</span>
+
+<span class="c">-- Сохранить сложный объект</span>
+<span class="k">let</span> <span class="v">data</span> = <span class="p">{</span> <span class="v">kills</span> = <span class="n">42</span>, <span class="v">bosses</span> = <span class="n">3</span>, <span class="v">runs</span> = <span class="n">7</span> <span class="p">}</span>
+<span class="fn">file_write</span><span class="p">(</span><span class="s">"stats.json"</span>, <span class="fn">json_stringify</span><span class="p">(</span><span class="v">data</span><span class="p">))</span>
+
+<span class="c">-- Загрузить и использовать</span>
+<span class="k">if</span> <span class="fn">file_exists</span><span class="p">(</span><span class="s">"stats.json"</span><span class="p">)</span> <span class="k">then</span>
+    <span class="k">let</span> <span class="v">s</span> = <span class="fn">json_parse</span><span class="p">(</span><span class="fn">file_read</span><span class="p">(</span><span class="s">"stats.json"</span>, <span class="s">"null"</span><span class="p">))</span>
+    <span class="fn">chat_log</span><span class="p">(</span><span class="s">"Убийств: "</span> .. <span class="fn">str</span><span class="p">(</span><span class="v">s</span><span class="p">[</span><span class="s">"kills"</span><span class="p">]))</span>
+<span class="k">end</span></pre>
+  </div>
+  <div class="note red"><span class="note-icon">🔒</span>Пути типа <code>../</code> или абсолютные автоматически отбрасываются. Файлы доступны только внутри папки мода.</div>
+</section>
+
+<!-- ── API: СЕТЬ ───────────────────────────────────── -->
+<section id="api-net">
+  <div class="section-header">
+    <span class="section-num">14</span>
+    <h2 class="section-title">API: Сеть / HTTP</h2>
+  </div>
+  <p class="section-desc">Нужно <code>permissions.network = true</code>. Запросы асинхронные — ответ приходит сигналом <code>net_response</code>.</p>
+
+  <table class="api-table">
+    <tr><th>Функция</th><th>Возврат</th><th>Описание</th></tr>
+    <tr><td>http_get(url, headers)</td><td><span class="ret">int (rid)</span></td><td>GET-запрос. headers — массив строк</td></tr>
+    <tr><td>http_post(url, body, headers)</td><td><span class="ret">int (rid)</span></td><td>POST-запрос. body — строка</td></tr>
+    <tr><td>http_cancel(rid)</td><td>—</td><td>Отменить запрос по rid</td></tr>
+  </table>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-lang">Удалённая конфигурация</span>
+      <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+    </div>
+<pre><span class="k">var</span> <span class="v">config_rid</span> = <span class="n">-1</span>
+
+<span class="v">on_load</span> = <span class="k">func</span><span class="p">()</span>
+    <span class="v">config_rid</span> = <span class="fn">http_get</span><span class="p">(</span><span class="s">"https://example.com/balance.json"</span>, <span class="p">[])</span>
+<span class="k">end</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"net_response"</span>, <span class="k">func</span><span class="p">(</span><span class="v">rid</span>, <span class="v">code</span>, <span class="v">body</span><span class="p">)</span>
+    <span class="k">if</span> <span class="v">rid</span> != <span class="v">config_rid</span> <span class="k">then</span> <span class="k">return</span> <span class="k">end</span>  <span class="c">-- не наш запрос</span>
+    <span class="k">if</span> <span class="v">code</span> == <span class="n">200</span> <span class="k">then</span>
+        <span class="k">let</span> <span class="v">cfg</span> = <span class="fn">json_parse</span><span class="p">(</span><span class="v">body</span><span class="p">)</span>
+        <span class="v">state</span><span class="p">.</span><span class="fn">set</span><span class="p">(</span><span class="s">"tear_rate"</span>, <span class="v">cfg</span><span class="p">[</span><span class="s">"tear_rate"</span><span class="p">])</span>
+        <span class="fn">chat_log</span><span class="p">(</span><span class="s">"Конфигурация загружена!"</span><span class="p">)</span>
+    <span class="k">else</span>
+        <span class="fn">chat_error</span><span class="p">(</span><span class="s">"Ошибка HTTP: "</span> .. <span class="fn">str</span><span class="p">(</span><span class="v">code</span><span class="p">))</span>
+    <span class="k">end</span>
+<span class="k">end</span><span class="p">)</span></pre>
+  </div>
+</section>
+
+<!-- ── API: AI ─────────────────────────────────────── -->
+<section id="api-ai">
+  <div class="section-header">
+    <span class="section-num">15</span>
+    <h2 class="section-title">API: AI / LLM</h2>
+  </div>
+  <p class="section-desc">Нужны <code>permissions.network = true</code> и ключ OpenRouter в настройках игры. Фоллбэк: <code>google/gemma-3-12b-it:free</code>.</p>
+
+  <table class="api-table">
+    <tr><th>Функция</th><th>Описание</th></tr>
+    <tr><td>ai_chat(prompt)</td><td>Запрос к AI. Ответ — через <code>net_response</code>, body уже содержит текст (не JSON)</td></tr>
+    <tr><td>ai_chat(prompt, model)</td><td>С указанием конкретной модели OpenRouter</td></tr>
+    <tr><td>ai_chat_as(prompt, sender, id)</td><td>AI-ответ сразу отправляется в чат от имени sender</td></tr>
+    <tr><td>ai_chat_as(prompt, sender, id, model)</td><td>С указанием модели</td></tr>
+    <tr><td>api_has_key("openrouter")</td><td>Проверяет наличие ключа. Всегда проверяйте перед вызовом!</td></tr>
+    <tr><td>api_key("openrouter")</td><td>Читает ключ. Не логируйте его в чат!</td></tr>
+  </table>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-lang">AI-NPC с фоллбэком</span>
+      <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+    </div>
+<pre><span class="k">var</span> <span class="v">fallback</span> = <span class="p">[</span>
+    <span class="s">"Тень падает быстрее, чем эхо."</span>,
+    <span class="s">"Они пришли из тьмы. Ты отправил их обратно."</span>,
+<span class="p">]</span>
+
+<span class="k">func</span> <span class="fn">pick</span><span class="p">(</span><span class="v">arr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="v">arr</span><span class="p">[</span><span class="fn">randi</span><span class="p">(</span><span class="n">0</span>, <span class="fn">len</span><span class="p">(</span><span class="v">arr</span><span class="p">)</span> - <span class="n">1</span><span class="p">)]</span>
+<span class="k">end</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"boss_died"</span>, <span class="k">func</span><span class="p">(</span><span class="v">_pos</span><span class="p">)</span>
+    <span class="k">if</span> <span class="fn">api_has_key</span><span class="p">(</span><span class="s">"openrouter"</span><span class="p">)</span> <span class="k">then</span>
+        <span class="fn">ai_chat_as</span><span class="p">(</span>
+            <span class="s">"Скажи одну злорадную фразу (≤80 знаков) о падении босса, на русском."</span>,
+            <span class="s">"Тёмный Голос"</span>, <span class="s">"dark_voice"</span>
+        <span class="p">)</span>
+    <span class="k">else</span>
+        <span class="fn">chat_enemy</span><span class="p">(</span><span class="s">"Тёмный Голос"</span>, <span class="fn">pick</span><span class="p">(</span><span class="v">fallback</span><span class="p">)</span>, <span class="s">"dark_voice"</span><span class="p">)</span>
+    <span class="k">end</span>
+<span class="k">end</span><span class="p">)</span></pre>
+  </div>
+
+  <div class="note teal">
+    <span class="note-icon">🔑</span>
+    <strong>Где задать ключ:</strong> Главное меню → Настройки → API ключи → «OpenRouter ключ». Ключ хранится в <code>user://settings/api_keys.cfg</code> и никуда не отправляется кроме OpenRouter.
+  </div>
+</section>
+
+<!-- ── API: КАМЕРА ─────────────────────────────────── -->
+<section id="api-camera">
+  <div class="section-header">
+    <span class="section-num">16</span>
+    <h2 class="section-title">API: Камера и звук</h2>
+  </div>
+  <table class="api-table">
+    <tr><th>Функция</th><th>Описание</th></tr>
+    <tr><td>shake(strength, duration)</td><td>Тряска экрана. strength — сила (4.0 = средняя), duration — секунды (0.3 = стандарт)</td></tr>
+    <tr><td>sfx("name")</td><td>Воспроизвести звук из встроенной библиотеки</td></tr>
+  </table>
+  <div class="note yellow">
+    <span class="note-icon">📷</span>
+    <strong>Позиционирование камеры и зум</strong> недоступны из RatScript — это внутренний уровень движка Godot. Камера всегда следует за игроком. Единственная камера-функция в API — <code>shake()</code>.
+  </div>
+</section>
+
+<!-- ── API: JSON ───────────────────────────────────── -->
+<section id="api-json">
+  <div class="section-header">
+    <span class="section-num">17</span>
+    <h2 class="section-title">API: JSON и ключи</h2>
+  </div>
+  <table class="api-table">
+    <tr><th>Функция</th><th>Возврат</th><th>Описание</th></tr>
+    <tr><td>json_parse(text)</td><td><span class="ret">any</span></td><td>Строка → словарь / массив / примитив. При ошибке — nil</td></tr>
+    <tr><td>json_stringify(value)</td><td><span class="ret">string</span></td><td>Значение → JSON-строка</td></tr>
+    <tr><td>api_has_key(name)</td><td><span class="ret">bool</span></td><td>Проверяет наличие API-ключа по имени</td></tr>
+    <tr><td>api_key(name)</td><td><span class="ret">string</span></td><td>Читает API-ключ. Не логируйте!</td></tr>
+  </table>
+</section>
+
+<!-- ── СОБЫТИЯ ─────────────────────────────────────── -->
+<section id="events">
+  <div class="section-header">
+    <span class="section-num">18</span>
+    <h2 class="section-title">Все сигналы EventBus</h2>
+  </div>
+  <p class="section-desc">Подписывайтесь через <code>on("имя_сигнала", func(...) ... end)</code>. Аргументы функции = аргументы сигнала.</p>
+
+  <h3>🎮 Игрок</h3>
+  <div class="signal-grid">
+    <div class="signal-item"><div class="signal-name">player_spawned</div><div class="signal-args">(player)</div></div>
+    <div class="signal-item"><div class="signal-name">player_died</div><div class="signal-args">()</div></div>
+    <div class="signal-item"><div class="signal-name">player_damaged</div><div class="signal-args">(amount)</div></div>
+    <div class="signal-item"><div class="signal-name">player_healed</div><div class="signal-args">(amount)</div></div>
+    <div class="signal-item"><div class="signal-name">player_shot</div><div class="signal-args">(direction)</div></div>
+    <div class="signal-item"><div class="signal-name">player_used_item</div><div class="signal-args">(id)</div></div>
+    <div class="signal-item"><div class="signal-name">player_placed_bomb</div><div class="signal-args">(pos)</div></div>
+  </div>
+
+  <h3>🚪 Комнаты</h3>
+  <div class="signal-grid">
+    <div class="signal-item"><div class="signal-name">room_cleared</div><div class="signal-args">(room_pos)</div></div>
+    <div class="signal-item"><div class="signal-name">room_entered</div><div class="signal-args">(room_pos, room_type)</div></div>
+    <div class="signal-item"><div class="signal-name">room_loaded</div><div class="signal-args">(room)</div></div>
+    <div class="signal-item"><div class="signal-name">door_opened</div><div class="signal-args">(direction)</div></div>
+    <div class="signal-item"><div class="signal-name">door_locked</div><div class="signal-args">(direction)</div></div>
+    <div class="signal-item"><div class="signal-name">door_transition</div><div class="signal-args">(next_pos, from_dir)</div></div>
+  </div>
+  <div class="note" style="margin-top:0.5rem">
+    <span class="note-icon">ℹ</span>
+    <strong>room_type</strong>: 0 = обычная, 3 = магазин, 5 = секретная, 6 = комната боссов
+  </div>
+
+  <h3>👾 Враги</h3>
+  <div class="signal-grid">
+    <div class="signal-item"><div class="signal-name">enemy_spawned</div><div class="signal-args">(enemy)</div></div>
+    <div class="signal-item"><div class="signal-name">enemy_died</div><div class="signal-args">(pos, enemy_type)</div></div>
+    <div class="signal-item"><div class="signal-name">enemy_hurt</div><div class="signal-args">(pos, enemy, amount)</div></div>
+    <div class="signal-item"><div class="signal-name">boss_fight_started</div><div class="signal-args">(boss)</div></div>
+    <div class="signal-item"><div class="signal-name">boss_died</div><div class="signal-args">(room_pos)</div></div>
+  </div>
+
+  <h3>📦 Предметы</h3>
+  <div class="signal-grid">
+    <div class="signal-item"><div class="signal-name">item_picked_up</div><div class="signal-args">(item_id)</div></div>
+    <div class="signal-item"><div class="signal-name">pickup_collected</div><div class="signal-args">(type, amount)</div></div>
+  </div>
+
+  <h3>🌍 Мир / Визуал</h3>
+  <div class="signal-grid">
+    <div class="signal-item"><div class="signal-name">camera_shake</div><div class="signal-args">(strength, duration)</div></div>
+    <div class="signal-item"><div class="signal-name">blood_splatter</div><div class="signal-args">(pos, count)</div></div>
+    <div class="signal-item"><div class="signal-name">impact_effect</div><div class="signal-args">(pos)</div></div>
+  </div>
+
+  <h3>📈 Прогресс</h3>
+  <div class="signal-grid">
+    <div class="signal-item"><div class="signal-name">floor_cleared</div><div class="signal-args">()</div></div>
+    <div class="signal-item"><div class="signal-name">floor_entered</div><div class="signal-args">(floor_num)</div></div>
+    <div class="signal-item"><div class="signal-name">game_over</div><div class="signal-args">()</div></div>
+    <div class="signal-item"><div class="signal-name">game_won</div><div class="signal-args">()</div></div>
+  </div>
+
+  <h3>🔧 Моды / Чат / Сеть</h3>
+  <div class="signal-grid">
+    <div class="signal-item"><div class="signal-name">mod_loaded</div><div class="signal-args">(mod_id)</div></div>
+    <div class="signal-item"><div class="signal-name">mod_unloaded</div><div class="signal-args">(mod_id)</div></div>
+    <div class="signal-item"><div class="signal-name">mod_error</div><div class="signal-args">(mod_id, message)</div></div>
+    <div class="signal-item"><div class="signal-name">mods_reloaded</div><div class="signal-args">()</div></div>
+    <div class="signal-item"><div class="signal-name">chat_message</div><div class="signal-args">(sender, text, kind, id)</div></div>
+    <div class="signal-item"><div class="signal-name">chat_cleared</div><div class="signal-args">()</div></div>
+    <div class="signal-item"><div class="signal-name">chat_visibility_changed</div><div class="signal-args">(visible)</div></div>
+    <div class="signal-item"><div class="signal-name">net_response</div><div class="signal-args">(rid, code, body)</div></div>
+  </div>
+</section>
+
+<!-- ── РЕЦЕПТЫ ─────────────────────────────────────── -->
+<section id="cookbook">
+  <div class="section-header">
+    <span class="section-num">19</span>
+    <h2 class="section-title">Рецепты (Cookbook)</h2>
+  </div>
+  <p class="section-desc">Готовые шаблоны для распространённых задач. Нажмите на рецепт, чтобы раскрыть.</p>
+
+  <div class="recipe open" onclick="toggleRecipe(this)">
+    <div class="recipe-header">
+      <div class="recipe-num">1</div>
+      <div class="recipe-title">Таймер и периодический спавн врагов</div>
+      <div class="recipe-arrow">▶</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-body-inner">
+        <p class="recipe-desc">Каждые 5 секунд спавним муху рядом с игроком. Паттерн «накопитель delta».</p>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">RatScript</span><button class="copy-btn" onclick="copyCode(this)">Копировать</button></div>
+<pre><span class="k">var</span> <span class="v">t</span> = <span class="n">0.0</span>
+
+<span class="v">on_tick</span> = <span class="k">func</span><span class="p">(</span><span class="v">delta</span><span class="p">)</span>
+    <span class="v">t</span> = <span class="v">t</span> + <span class="v">delta</span>
+    <span class="k">if</span> <span class="v">t</span> >= <span class="n">5.0</span> <span class="k">then</span>
+        <span class="v">t</span> = <span class="n">0.0</span>
+        <span class="k">let</span> <span class="v">p</span> = <span class="fn">player</span><span class="p">()</span>
+        <span class="k">if</span> <span class="v">p</span> != <span class="k">nil</span> <span class="k">then</span>
+            <span class="fn">spawn</span><span class="p">(</span><span class="s">"res://scenes/enemies/Fly.tscn"</span>,
+                  <span class="v">p</span><span class="p">.</span><span class="v">position</span> + <span class="fn">vec</span><span class="p">(</span><span class="n">64</span>, <span class="n">0</span><span class="p">))</span>
+        <span class="k">end</span>
+    <span class="k">end</span>
+<span class="k">end</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe" onclick="toggleRecipe(this)">
+    <div class="recipe-header">
+      <div class="recipe-num">2</div>
+      <div class="recipe-title">Монеты за каждого убитого врага</div>
+      <div class="recipe-arrow">▶</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-body-inner">
+        <p class="recipe-desc">Подписка на <code>enemy_died</code> и выдача монеты.</p>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">RatScript</span><button class="copy-btn" onclick="copyCode(this)">Копировать</button></div>
+<pre><span class="fn">on</span><span class="p">(</span><span class="s">"enemy_died"</span>, <span class="k">func</span><span class="p">(</span><span class="v">pos</span>, <span class="v">type</span><span class="p">)</span>
+    <span class="v">state</span><span class="p">.</span><span class="fn">add_coins</span><span class="p">(</span><span class="n">2</span><span class="p">)</span>
+    <span class="fn">chat_log</span><span class="p">(</span><span class="s">"+"</span><span class="n">2</span><span class="s">" монеты за "</span> .. <span class="v">type</span><span class="p">)</span>
+<span class="k">end</span><span class="p">)</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe" onclick="toggleRecipe(this)">
+    <div class="recipe-header">
+      <div class="recipe-num">3</div>
+      <div class="recipe-title">Пассивный предмет с on_pickup эффектом</div>
+      <div class="recipe-arrow">▶</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-body-inner">
+        <p class="recipe-desc">Регистрация предмета. Эффект при подборе обрабатывается через <code>on("item_picked_up")</code>.</p>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">RatScript</span><button class="copy-btn" onclick="copyCode(this)">Копировать</button></div>
+<pre><span class="v">on_load</span> = <span class="k">func</span><span class="p">()</span>
+    <span class="fn">item</span><span class="p">({</span>
+        <span class="v">id</span>          = <span class="s">"blood_shard"</span>,
+        <span class="v">name</span>        = <span class="s">"Кровавый Осколок"</span>,
+        <span class="v">description</span> = <span class="s">"+2 урон, −1 HP"</span>,
+        <span class="v">stats</span> = <span class="p">{</span> <span class="v">player_damage</span> = <span class="n">2.0</span>, <span class="v">hp_red</span> = <span class="n">-1</span> <span class="p">}</span>
+    <span class="p">})</span>
+<span class="k">end</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"item_picked_up"</span>, <span class="k">func</span><span class="p">(</span><span class="v">item_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="v">item_id</span> == <span class="s">"blood_shard"</span> <span class="k">then</span>
+        <span class="fn">shake</span><span class="p">(</span><span class="n">4.0</span>, <span class="n">0.3</span><span class="p">)</span>
+        <span class="fn">chat_item</span><span class="p">(</span><span class="s">"Кровавый Осколок"</span>, <span class="s">"Цена — твоя кровь."</span>, <span class="s">"blood_shard"</span><span class="p">)</span>
+    <span class="k">end</span>
+<span class="k">end</span><span class="p">)</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe" onclick="toggleRecipe(this)">
+    <div class="recipe-header">
+      <div class="recipe-num">4</div>
+      <div class="recipe-title">AI-комментатор с фоллбэком</div>
+      <div class="recipe-arrow">▶</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-body-inner">
+        <p class="recipe-desc">NPC комментирует смерть босса через AI или берёт фразу из массива если ключа нет.</p>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">RatScript</span><button class="copy-btn" onclick="copyCode(this)">Копировать</button></div>
+<pre><span class="k">var</span> <span class="v">lines</span> = <span class="p">[</span>
+    <span class="s">"Колосс пал. Иди дальше."</span>,
+    <span class="s">"Велик — и мёртв. Логично."</span>
+<span class="p">]</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"boss_died"</span>, <span class="k">func</span><span class="p">(</span><span class="v">_pos</span><span class="p">)</span>
+    <span class="k">if</span> <span class="fn">api_has_key</span><span class="p">(</span><span class="s">"openrouter"</span><span class="p">)</span> <span class="k">then</span>
+        <span class="fn">ai_chat_as</span><span class="p">(</span>
+            <span class="s">"Злорадная фраза о падении босса, ≤80 знаков, на русском."</span>,
+            <span class="s">"Голос"</span>, <span class="s">"voice_npc"</span>
+        <span class="p">)</span>
+    <span class="k">else</span>
+        <span class="fn">chat_enemy</span><span class="p">(</span><span class="s">"Голос"</span>, <span class="v">lines</span><span class="p">[</span><span class="fn">randi</span><span class="p">(</span><span class="n">0</span>, <span class="n">1</span><span class="p">)]</span>, <span class="s">"voice_npc"</span><span class="p">)</span>
+    <span class="k">end</span>
+<span class="k">end</span><span class="p">)</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe" onclick="toggleRecipe(this)">
+    <div class="recipe-header">
+      <div class="recipe-num">5</div>
+      <div class="recipe-title">Постоянное сохранение статистики</div>
+      <div class="recipe-arrow">▶</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-body-inner">
+        <p class="recipe-desc">Счётчик убийств сохраняется между сессиями в файле мода.</p>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">RatScript</span><button class="copy-btn" onclick="copyCode(this)">Копировать</button></div>
+<pre><span class="k">var</span> <span class="v">kills</span> = <span class="n">0</span>
+
+<span class="v">on_load</span> = <span class="k">func</span><span class="p">()</span>
+    <span class="k">let</span> <span class="v">raw</span> = <span class="fn">file_read</span><span class="p">(</span><span class="s">"kills.json"</span>, <span class="s">"0"</span><span class="p">)</span>
+    <span class="k">let</span> <span class="v">v</span> = <span class="fn">json_parse</span><span class="p">(</span><span class="v">raw</span><span class="p">)</span>
+    <span class="k">if</span> <span class="v">v</span> != <span class="k">nil</span> <span class="k">then</span> <span class="v">kills</span> = <span class="v">v</span> <span class="k">end</span>
+    <span class="fn">chat_log</span><span class="p">(</span><span class="s">"Всего убийств: "</span> .. <span class="fn">str</span><span class="p">(</span><span class="v">kills</span><span class="p">))</span>
+<span class="k">end</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"enemy_died"</span>, <span class="k">func</span><span class="p">(</span><span class="v">_p</span>, <span class="v">_t</span><span class="p">)</span>
+    <span class="v">kills</span> = <span class="v">kills</span> + <span class="n">1</span>
+    <span class="fn">file_write</span><span class="p">(</span><span class="s">"kills.json"</span>, <span class="fn">str</span><span class="p">(</span><span class="v">kills</span><span class="p">))</span>
+<span class="k">end</span><span class="p">)</span>
+
+<span class="v">on_unload</span> = <span class="k">func</span><span class="p">()</span>
+    <span class="fn">file_write</span><span class="p">(</span><span class="s">"kills.json"</span>, <span class="fn">str</span><span class="p">(</span><span class="v">kills</span><span class="p">))</span>
+<span class="k">end</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe" onclick="toggleRecipe(this)">
+    <div class="recipe-header">
+      <div class="recipe-num">6</div>
+      <div class="recipe-title">Kill Streak — серия убийств</div>
+      <div class="recipe-arrow">▶</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-body-inner">
+        <p class="recipe-desc">Серия убийств без получения урона. Каждые 5 — бонус монет.</p>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">RatScript</span><button class="copy-btn" onclick="copyCode(this)">Копировать</button></div>
+<pre><span class="k">var</span> <span class="v">streak</span> = <span class="n">0</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"enemy_died"</span>, <span class="k">func</span><span class="p">(</span><span class="v">_p</span>, <span class="v">_t</span><span class="p">)</span>
+    <span class="v">streak</span> = <span class="v">streak</span> + <span class="n">1</span>
+    <span class="k">if</span> <span class="v">streak</span> % <span class="n">5</span> == <span class="n">0</span> <span class="k">then</span>
+        <span class="k">let</span> <span class="v">bonus</span> = <span class="v">streak</span> / <span class="n">5</span> * <span class="n">3</span>
+        <span class="v">state</span><span class="p">.</span><span class="fn">add_coins</span><span class="p">(</span><span class="v">bonus</span><span class="p">)</span>
+        <span class="fn">chat_log</span><span class="p">(</span><span class="s">"СЕРИЯ x"</span> .. <span class="fn">str</span><span class="p">(</span><span class="v">streak</span><span class="p">)</span> .. <span class="s">"! +"</span> .. <span class="fn">str</span><span class="p">(</span><span class="v">bonus</span><span class="p">)</span> .. <span class="s">" монет"</span><span class="p">)</span>
+        <span class="fn">shake</span><span class="p">(</span><span class="n">3.0</span>, <span class="n">0.2</span><span class="p">)</span>
+    <span class="k">end</span>
+<span class="k">end</span><span class="p">)</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"player_damaged"</span>, <span class="k">func</span><span class="p">(</span><span class="v">amount</span><span class="p">)</span>
+    <span class="k">if</span> <span class="v">streak</span> > <span class="n">0</span> <span class="k">then</span>
+        <span class="fn">chat_error</span><span class="p">(</span><span class="s">"Серия прервана на "</span> .. <span class="fn">str</span><span class="p">(</span><span class="v">streak</span><span class="p">))</span>
+        <span class="v">streak</span> = <span class="n">0</span>
+    <span class="k">end</span>
+<span class="k">end</span><span class="p">)</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe" onclick="toggleRecipe(this)">
+    <div class="recipe-header">
+      <div class="recipe-num">7</div>
+      <div class="recipe-title">Система волн в комнате</div>
+      <div class="recipe-arrow">▶</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-body-inner">
+        <p class="recipe-desc">Каждые 8 секунд, если врагов меньше 5, появляется новая волна.</p>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">RatScript</span><button class="copy-btn" onclick="copyCode(this)">Копировать</button></div>
+<pre><span class="k">var</span> <span class="v">t</span> = <span class="n">0.0</span>
+<span class="k">var</span> <span class="v">wave_on</span> = <span class="k">false</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"room_entered"</span>, <span class="k">func</span><span class="p">(</span><span class="v">pos</span>, <span class="v">type</span><span class="p">)</span>
+    <span class="v">wave_on</span> = <span class="p">(</span><span class="v">type</span> == <span class="n">0</span><span class="p">)</span>  <span class="c">-- только обычные комнаты</span>
+    <span class="v">t</span> = <span class="n">5.0</span>               <span class="c">-- первая волна через 5 сек</span>
+<span class="k">end</span><span class="p">)</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"room_cleared"</span>, <span class="k">func</span><span class="p">(</span><span class="v">_p</span><span class="p">)</span>
+    <span class="v">wave_on</span> = <span class="k">false</span>
+<span class="k">end</span><span class="p">)</span>
+
+<span class="v">on_tick</span> = <span class="k">func</span><span class="p">(</span><span class="v">delta</span><span class="p">)</span>
+    <span class="k">if</span> <span class="k">not</span> <span class="v">wave_on</span> <span class="k">then</span> <span class="k">return</span> <span class="k">end</span>
+    <span class="v">t</span> = <span class="v">t</span> + <span class="v">delta</span>
+    <span class="k">if</span> <span class="v">t</span> >= <span class="n">8.0</span> <span class="k">then</span>
+        <span class="v">t</span> = <span class="n">0.0</span>
+        <span class="k">if</span> <span class="fn">len</span><span class="p">(</span><span class="fn">enemies</span><span class="p">())</span> < <span class="n">5</span> <span class="k">then</span>
+            <span class="k">let</span> <span class="v">p</span> = <span class="fn">player</span><span class="p">()</span>
+            <span class="k">if</span> <span class="v">p</span> != <span class="k">nil</span> <span class="k">then</span>
+                <span class="fn">spawn</span><span class="p">(</span><span class="s">"res://scenes/enemies/Fly.tscn"</span>,
+                      <span class="v">p</span><span class="p">.</span><span class="v">position</span> + <span class="fn">vec</span><span class="p">(</span><span class="fn">randi</span><span class="p">(</span>-<span class="n">200</span>,<span class="n">200</span><span class="p">)</span>, <span class="fn">randi</span><span class="p">(</span>-<span class="n">200</span>,<span class="n">200</span><span class="p">)))</span>
+            <span class="k">end</span>
+        <span class="k">end</span>
+    <span class="k">end</span>
+<span class="k">end</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe" onclick="toggleRecipe(this)">
+    <div class="recipe-header">
+      <div class="recipe-num">8</div>
+      <div class="recipe-title">Взрыв через damage_in_radius</div>
+      <div class="recipe-arrow">▶</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-body-inner">
+        <p class="recipe-desc">Каждые 10 убийств — взрыв вокруг игрока.</p>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">RatScript</span><button class="copy-btn" onclick="copyCode(this)">Копировать</button></div>
+<pre><span class="k">var</span> <span class="v">kill_count</span> = <span class="n">0</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"enemy_died"</span>, <span class="k">func</span><span class="p">(</span><span class="v">_p</span>, <span class="v">_t</span><span class="p">)</span>
+    <span class="v">kill_count</span> = <span class="v">kill_count</span> + <span class="n">1</span>
+    <span class="k">if</span> <span class="v">kill_count</span> >= <span class="n">10</span> <span class="k">then</span>
+        <span class="v">kill_count</span> = <span class="n">0</span>
+        <span class="k">let</span> <span class="v">p</span> = <span class="fn">player</span><span class="p">()</span>
+        <span class="k">if</span> <span class="v">p</span> != <span class="k">nil</span> <span class="k">then</span>
+            <span class="fn">damage_in_radius</span><span class="p">(</span><span class="v">p</span><span class="p">.</span><span class="v">position</span>, <span class="n">150</span>, <span class="n">3</span><span class="p">)</span>
+            <span class="fn">shake</span><span class="p">(</span><span class="n">6.0</span>, <span class="n">0.4</span><span class="p">)</span>
+            <span class="fn">chat_log</span><span class="p">(</span><span class="s">"💥 ВЗРЫВ!"</span><span class="p">)</span>
+        <span class="k">end</span>
+    <span class="k">end</span>
+<span class="k">end</span><span class="p">)</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe" onclick="toggleRecipe(this)">
+    <div class="recipe-header">
+      <div class="recipe-num">9</div>
+      <div class="recipe-title">Удалённая конфигурация (HTTP)</div>
+      <div class="recipe-arrow">▶</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-body-inner">
+        <p class="recipe-desc">Загрузка баланса мода с внешнего сервера при старте.</p>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">RatScript</span><button class="copy-btn" onclick="copyCode(this)">Копировать</button></div>
+<pre><span class="k">var</span> <span class="v">my_rid</span> = <span class="n">-1</span>
+
+<span class="v">on_load</span> = <span class="k">func</span><span class="p">()</span>
+    <span class="v">my_rid</span> = <span class="fn">http_get</span><span class="p">(</span><span class="s">"https://myserver.com/mod_config.json"</span>, <span class="p">[])</span>
+<span class="k">end</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"net_response"</span>, <span class="k">func</span><span class="p">(</span><span class="v">rid</span>, <span class="v">code</span>, <span class="v">body</span><span class="p">)</span>
+    <span class="k">if</span> <span class="v">rid</span> != <span class="v">my_rid</span> <span class="k">then</span> <span class="k">return</span> <span class="k">end</span>
+    <span class="k">if</span> <span class="v">code</span> != <span class="n">200</span> <span class="k">then</span>
+        <span class="fn">chat_error</span><span class="p">(</span><span class="s">"Сервер недоступен: "</span> .. <span class="fn">str</span><span class="p">(</span><span class="v">code</span><span class="p">))</span>
+        <span class="k">return</span>
+    <span class="k">end</span>
+    <span class="k">let</span> <span class="v">cfg</span> = <span class="fn">json_parse</span><span class="p">(</span><span class="v">body</span><span class="p">)</span>
+    <span class="v">state</span><span class="p">.</span><span class="fn">set</span><span class="p">(</span><span class="s">"player_damage"</span>, <span class="v">cfg</span><span class="p">[</span><span class="s">"base_damage"</span><span class="p">])</span>
+    <span class="fn">chat_log</span><span class="p">(</span><span class="s">"Конфигурация загружена с сервера!"</span><span class="p">)</span>
+<span class="k">end</span><span class="p">)</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe" onclick="toggleRecipe(this)">
+    <div class="recipe-header">
+      <div class="recipe-num">10</div>
+      <div class="recipe-title">Советы по типу комнаты</div>
+      <div class="recipe-arrow">▶</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-body-inner">
+        <p class="recipe-desc">Разные советы при входе в магазин, секрет и босс-комнату.</p>
+        <div class="code-block">
+          <div class="code-header"><div class="code-dots"><span></span><span></span><span></span></div><span class="code-lang">RatScript</span><button class="copy-btn" onclick="copyCode(this)">Копировать</button></div>
+<pre><span class="fn">on</span><span class="p">(</span><span class="s">"room_entered"</span>, <span class="k">func</span><span class="p">(</span><span class="v">_pos</span>, <span class="v">room_type</span><span class="p">)</span>
+    <span class="k">if</span> <span class="v">room_type</span> == <span class="n">3</span> <span class="k">then</span>     <span class="c">-- магазин</span>
+        <span class="fn">chat_log</span><span class="p">(</span><span class="s">"Трать монеты мудро."</span><span class="p">)</span>
+    <span class="k">elseif</span> <span class="v">room_type</span> == <span class="n">5</span> <span class="k">then</span>  <span class="c">-- секретная</span>
+        <span class="fn">chat_log</span><span class="p">(</span><span class="s">"Загляни во все углы."</span><span class="p">)</span>
+    <span class="k">elseif</span> <span class="v">room_type</span> == <span class="n">6</span> <span class="k">then</span>  <span class="c">-- босс</span>
+        <span class="fn">shake</span><span class="p">(</span><span class="n">5.0</span>, <span class="n">0.4</span><span class="p">)</span>
+        <span class="fn">chat_error</span><span class="p">(</span><span class="s">"БОСС. Удачи."</span><span class="p">)</span>
+    <span class="k">end</span>
+<span class="k">end</span><span class="p">)</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── КАЛЬКУЛЯТОР ─────────────────────────────────── -->
+<section id="calculator">
+  <div class="section-header">
+    <span class="section-num">20</span>
+    <h2 class="section-title">Калькулятор статов предмета</h2>
+  </div>
+  <p class="section-desc">Настройте значения stats предмета и увидьте итоговые характеристики игрока.</p>
+
+  <div class="calc-grid">
+    <div class="calc-panel">
+      <h3>📦 Базовые статы игрока</h3>
+      <div class="calc-row">
+        <div class="calc-label">Урон (player_damage)</div>
+        <div class="calc-input-wrap">
+          <input type="range" class="calc-slider" id="sl-dmg" min="1" max="10" step="0.5" value="3.5" oninput="updateCalc()">
+          <input type="number" class="calc-input" id="in-dmg" value="3.5" step="0.5" oninput="syncSlider('dmg')">
+        </div>
+      </div>
+      <div class="calc-row">
+        <div class="calc-label">Темп (tear_rate, вып/с)</div>
+        <div class="calc-input-wrap">
+          <input type="range" class="calc-slider" id="sl-rate" min="0.5" max="5" step="0.25" value="1.5" oninput="updateCalc()">
+          <input type="number" class="calc-input" id="in-rate" value="1.5" step="0.25" oninput="syncSlider('rate')">
+        </div>
+      </div>
+      <div class="calc-row">
+        <div class="calc-label">Скорость слёз</div>
+        <div class="calc-input-wrap">
+          <input type="range" class="calc-slider" id="sl-speed" min="1" max="10" step="0.5" value="5" oninput="updateCalc()">
+          <input type="number" class="calc-input" id="in-speed" value="5" step="0.5" oninput="syncSlider('speed')">
+        </div>
+      </div>
+      <div class="calc-row">
+        <div class="calc-label">Дальность (px)</div>
+        <div class="calc-input-wrap">
+          <input type="range" class="calc-slider" id="sl-range" min="100" max="1000" step="50" value="500" oninput="updateCalc()">
+          <input type="number" class="calc-input" id="in-range" value="500" step="50" oninput="syncSlider('range')">
+        </div>
+      </div>
+      <div class="calc-row">
+        <div class="calc-label">Удача (luck)</div>
+        <div class="calc-input-wrap">
+          <input type="range" class="calc-slider" id="sl-luck" min="0" max="5" step="0.1" value="0" oninput="updateCalc()">
+          <input type="number" class="calc-input" id="in-luck" value="0" step="0.1" oninput="syncSlider('luck')">
+        </div>
+      </div>
+    </div>
+
+    <div class="calc-panel">
+      <h3>➕ Бонус предмета (stats)</h3>
+      <div class="calc-row">
+        <div class="calc-label">+player_damage</div>
+        <div class="calc-input-wrap">
+          <input type="range" class="calc-slider" id="sl-bdmg" min="0" max="5" step="0.5" value="1" oninput="updateCalc()">
+          <input type="number" class="calc-input" id="in-bdmg" value="1" step="0.5" oninput="syncSlider('bdmg')">
+        </div>
+      </div>
+      <div class="calc-row">
+        <div class="calc-label">+tear_rate (доля)</div>
+        <div class="calc-input-wrap">
+          <input type="range" class="calc-slider" id="sl-brate" min="-0.5" max="2" step="0.05" value="0.25" oninput="updateCalc()">
+          <input type="number" class="calc-input" id="in-brate" value="0.25" step="0.05" oninput="syncSlider('brate')">
+        </div>
+      </div>
+      <div class="calc-row">
+        <div class="calc-label">+tear_speed (доля)</div>
+        <div class="calc-input-wrap">
+          <input type="range" class="calc-slider" id="sl-bspeed" min="-0.5" max="1" step="0.05" value="0" oninput="updateCalc()">
+          <input type="number" class="calc-input" id="in-bspeed" value="0" step="0.05" oninput="syncSlider('bspeed')">
+        </div>
+      </div>
+      <div class="calc-row">
+        <div class="calc-label">+tear_range (доля)</div>
+        <div class="calc-input-wrap">
+          <input type="range" class="calc-slider" id="sl-brange" min="-0.5" max="1" step="0.05" value="0" oninput="updateCalc()">
+          <input type="number" class="calc-input" id="in-brange" value="0" step="0.05" oninput="syncSlider('brange')">
+        </div>
+      </div>
+      <div class="calc-row">
+        <div class="calc-label">+luck</div>
+        <div class="calc-input-wrap">
+          <input type="range" class="calc-slider" id="sl-bluck" min="0" max="3" step="0.1" value="0.5" oninput="updateCalc()">
+          <input type="number" class="calc-input" id="in-bluck" value="0.5" step="0.1" oninput="syncSlider('bluck')">
+        </div>
+      </div>
+
+      <div class="calc-result" id="calc-result">
+        <div class="calc-result-row"><span class="calc-result-key">Итого урон</span><span class="calc-result-val" id="r-dmg">—</span></div>
+        <div class="calc-result-row"><span class="calc-result-key">Темп стрельбы</span><span class="calc-result-val" id="r-rate">—</span></div>
+        <div class="calc-result-row"><span class="calc-result-key">Скорость слёз</span><span class="calc-result-val" id="r-speed">—</span></div>
+        <div class="calc-result-row"><span class="calc-result-key">Дальность</span><span class="calc-result-val" id="r-range">—</span></div>
+        <div class="calc-result-row"><span class="calc-result-key">Удача</span><span class="calc-result-val" id="r-luck">—</span></div>
+        <div class="calc-result-row"><span class="calc-result-key">DPS (урон × темп)</span><span class="calc-result-val high" id="r-dps">—</span></div>
+        <div class="calc-result-row"><span class="calc-result-key">Код stats для item()</span><span class="calc-result-val" style="font-size:0.7rem;color:var(--accent)" id="r-code">—</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── МЕГА-ПРИМЕР ─────────────────────────────────── -->
+<section id="megaexample">
+  <div class="section-header">
+    <span class="section-num">21</span>
+    <h2 class="section-title">Полный пример мода</h2>
+  </div>
+  <p class="section-desc">Каркас мода, использующего все основные возможности API. Подходит как основа для любого мода.</p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-lang">scripts/main.rrs — полный каркас</span>
+      <button class="copy-btn" onclick="copyCode(this)">Копировать</button>
+    </div>
+<pre><span class="c">-- ── Состояние ────────────────────────────────────────────</span>
+<span class="k">var</span> <span class="v">t_wave</span>    = <span class="n">0.0</span>
+<span class="k">var</span> <span class="v">t_voice</span>   = <span class="n">0.0</span>
+<span class="k">var</span> <span class="v">kills</span>     = <span class="n">0</span>
+<span class="k">var</span> <span class="v">streak</span>    = <span class="n">0</span>
+<span class="k">var</span> <span class="v">wave_on</span>   = <span class="k">false</span>
+<span class="k">var</span> <span class="v">cur_floor</span> = <span class="n">1</span>
+
+<span class="k">var</span> <span class="v">voice_lines</span> = <span class="p">[</span>
+    <span class="s">"Тень падает быстрее, чем эхо."</span>,
+    <span class="s">"Они пришли из тьмы. Ты отправил их обратно."</span>,
+    <span class="s">"Бездна считает. Она всегда считает."</span>
+<span class="p">]</span>
+
+<span class="c">-- ── Утилиты ──────────────────────────────────────────────</span>
+<span class="k">func</span> <span class="fn">pick</span><span class="p">(</span><span class="v">arr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="v">arr</span><span class="p">[</span><span class="fn">randi</span><span class="p">(</span><span class="n">0</span>, <span class="fn">len</span><span class="p">(</span><span class="v">arr</span><span class="p">)</span> - <span class="n">1</span><span class="p">)]</span>
+<span class="k">end</span>
+
+<span class="k">func</span> <span class="fn">voice</span><span class="p">(</span><span class="v">prompt</span><span class="p">)</span>
+    <span class="k">if</span> <span class="fn">api_has_key</span><span class="p">(</span><span class="s">"openrouter"</span><span class="p">)</span> <span class="k">then</span>
+        <span class="fn">ai_chat_as</span><span class="p">(</span><span class="v">prompt</span>, <span class="s">"Голос"</span>, <span class="s">"npc_voice"</span><span class="p">)</span>
+    <span class="k">else</span>
+        <span class="fn">chat_enemy</span><span class="p">(</span><span class="s">"Голос"</span>, <span class="fn">pick</span><span class="p">(</span><span class="v">voice_lines</span><span class="p">)</span>, <span class="s">"npc_voice"</span><span class="p">)</span>
+    <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">func</span> <span class="fn">enemy_for_floor</span><span class="p">()</span>
+    <span class="k">if</span> <span class="v">cur_floor</span> <= <span class="n">1</span> <span class="k">then</span> <span class="k">return</span> <span class="s">"res://scenes/enemies/Fly.tscn"</span> <span class="k">end</span>
+    <span class="k">if</span> <span class="v">cur_floor</span> == <span class="n">2</span> <span class="k">then</span> <span class="k">return</span> <span class="s">"res://scenes/enemies/Gaper.tscn"</span> <span class="k">end</span>
+    <span class="k">if</span> <span class="v">cur_floor</span> == <span class="n">3</span> <span class="k">then</span> <span class="k">return</span> <span class="s">"res://scenes/enemies/Pooter.tscn"</span> <span class="k">end</span>
+    <span class="k">if</span> <span class="v">cur_floor</span> == <span class="n">4</span> <span class="k">then</span> <span class="k">return</span> <span class="s">"res://scenes/enemies/Spider.tscn"</span> <span class="k">end</span>
+    <span class="k">return</span> <span class="s">"res://scenes/enemies/Leaper.tscn"</span>
+<span class="k">end</span>
+
+<span class="k">func</span> <span class="fn">save</span><span class="p">()</span>
+    <span class="fn">file_write</span><span class="p">(</span><span class="s">"stats.json"</span>, <span class="fn">json_stringify</span><span class="p">({</span> <span class="v">kills</span> = <span class="v">kills</span> <span class="p">}))</span>
+<span class="k">end</span>
+
+<span class="c">-- ── Загрузка ──────────────────────────────────────────────</span>
+<span class="v">on_load</span> = <span class="k">func</span><span class="p">()</span>
+    <span class="fn">chat_log</span><span class="p">(</span><span class="s">"Мод запущен!"</span><span class="p">)</span>
+
+    <span class="fn">item</span><span class="p">({</span>
+        <span class="v">id</span> = <span class="s">"void_lens"</span>, <span class="v">name</span> = <span class="s">"Линза Пустоты"</span>,
+        <span class="v">description</span> = <span class="s">"+1 урон, +0.5 удача"</span>,
+        <span class="v">stats</span> = <span class="p">{</span> <span class="v">player_damage</span> = <span class="n">1.0</span>, <span class="v">luck</span> = <span class="n">0.5</span> <span class="p">}</span>
+    <span class="p">})</span>
+    <span class="fn">grant</span><span class="p">(</span><span class="s">"void_lens"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="fn">file_exists</span><span class="p">(</span><span class="s">"stats.json"</span><span class="p">)</span> <span class="k">then</span>
+        <span class="k">let</span> <span class="v">s</span> = <span class="fn">json_parse</span><span class="p">(</span><span class="fn">file_read</span><span class="p">(</span><span class="s">"stats.json"</span>, <span class="s">"null"</span><span class="p">))</span>
+        <span class="k">if</span> <span class="v">s</span> != <span class="k">nil</span> <span class="k">then</span> <span class="v">kills</span> = <span class="v">s</span><span class="p">[</span><span class="s">"kills"</span><span class="p">]</span> <span class="k">end</span>
+    <span class="k">end</span>
+    <span class="fn">chat_log</span><span class="p">(</span><span class="s">"Убийств всего: "</span> .. <span class="fn">str</span><span class="p">(</span><span class="v">kills</span><span class="p">))</span>
+<span class="k">end</span>
+
+<span class="c">-- ── Тик ──────────────────────────────────────────────────</span>
+<span class="v">on_tick</span> = <span class="k">func</span><span class="p">(</span><span class="v">delta</span><span class="p">)</span>
+    <span class="v">t_wave</span>  = <span class="v">t_wave</span>  + <span class="v">delta</span>
+    <span class="v">t_voice</span> = <span class="v">t_voice</span> + <span class="v">delta</span>
+
+    <span class="k">if</span> <span class="v">wave_on</span> <span class="k">and</span> <span class="v">t_wave</span> >= <span class="n">8.0</span> <span class="k">then</span>
+        <span class="v">t_wave</span> = <span class="n">0.0</span>
+        <span class="k">if</span> <span class="fn">len</span><span class="p">(</span><span class="fn">enemies</span><span class="p">())</span> < <span class="n">5</span> <span class="k">then</span>
+            <span class="k">let</span> <span class="v">p</span> = <span class="fn">player</span><span class="p">()</span>
+            <span class="k">if</span> <span class="v">p</span> != <span class="k">nil</span> <span class="k">then</span>
+                <span class="fn">spawn</span><span class="p">(</span><span class="fn">enemy_for_floor</span><span class="p">(),</span>
+                      <span class="v">p</span><span class="p">.</span><span class="v">position</span> + <span class="fn">vec</span><span class="p">(</span><span class="fn">randi</span><span class="p">(</span>-<span class="n">180</span>,<span class="n">180</span><span class="p">)</span>, <span class="fn">randi</span><span class="p">(</span>-<span class="n">180</span>,<span class="n">180</span><span class="p">)))</span>
+            <span class="k">end</span>
+        <span class="k">end</span>
+    <span class="k">end</span>
+
+    <span class="k">if</span> <span class="v">t_voice</span> >= <span class="n">15.0</span> <span class="k">then</span>
+        <span class="v">t_voice</span> = <span class="n">0.0</span>
+        <span class="fn">voice</span><span class="p">(</span><span class="s">"Скажи мрачную фразу (≤80 знаков), на русском."</span><span class="p">)</span>
+    <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c">-- ── События ───────────────────────────────────────────────</span>
+<span class="fn">on</span><span class="p">(</span><span class="s">"floor_entered"</span>, <span class="k">func</span><span class="p">(</span><span class="v">n</span><span class="p">)</span>
+    <span class="v">cur_floor</span> = <span class="v">n</span>
+    <span class="v">state</span><span class="p">.</span><span class="fn">add_coins</span><span class="p">(</span><span class="v">n</span> * <span class="n">2</span><span class="p">)</span>
+<span class="k">end</span><span class="p">)</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"room_entered"</span>, <span class="k">func</span><span class="p">(</span><span class="v">_pos</span>, <span class="v">rtype</span><span class="p">)</span>
+    <span class="v">wave_on</span> = <span class="p">(</span><span class="v">rtype</span> == <span class="n">0</span><span class="p">)</span>
+    <span class="v">t_wave</span> = <span class="n">5.0</span>
+<span class="k">end</span><span class="p">)</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"room_cleared"</span>, <span class="k">func</span><span class="p">(</span><span class="v">_p</span><span class="p">)</span>   <span class="v">wave_on</span> = <span class="k">false</span> <span class="k">end</span><span class="p">)</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"enemy_died"</span>, <span class="k">func</span><span class="p">(</span><span class="v">_p</span>, <span class="v">_t</span><span class="p">)</span>
+    <span class="v">kills</span>  = <span class="v">kills</span>  + <span class="n">1</span>
+    <span class="v">streak</span> = <span class="v">streak</span> + <span class="n">1</span>
+    <span class="k">if</span> <span class="fn">randi</span><span class="p">(</span><span class="n">0</span>, <span class="n">3</span><span class="p">)</span> == <span class="n">0</span> <span class="k">then</span> <span class="v">state</span><span class="p">.</span><span class="fn">add_coins</span><span class="p">(</span><span class="n">1</span><span class="p">)</span> <span class="k">end</span>
+    <span class="k">if</span> <span class="v">streak</span> % <span class="n">5</span> == <span class="n">0</span> <span class="k">then</span>
+        <span class="fn">chat_log</span><span class="p">(</span><span class="s">"СЕРИЯ x"</span> .. <span class="fn">str</span><span class="p">(</span><span class="v">streak</span><span class="p">)</span> .. <span class="s">"!"</span><span class="p">)</span>
+    <span class="k">end</span>
+    <span class="fn">save</span><span class="p">()</span>
+<span class="k">end</span><span class="p">)</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"player_damaged"</span>, <span class="k">func</span><span class="p">(</span><span class="v">_a</span><span class="p">)</span>  <span class="v">streak</span> = <span class="n">0</span>  <span class="k">end</span><span class="p">)</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"boss_died"</span>, <span class="k">func</span><span class="p">(</span><span class="v">_p</span><span class="p">)</span>
+    <span class="v">state</span><span class="p">.</span><span class="fn">add_coins</span><span class="p">(</span><span class="n">10</span> + <span class="v">cur_floor</span> * <span class="n">2</span><span class="p">)</span>
+    <span class="v">state</span><span class="p">.</span><span class="fn">add_keys</span><span class="p">(</span><span class="n">1</span><span class="p">)</span>
+    <span class="fn">shake</span><span class="p">(</span><span class="n">6.0</span>, <span class="n">0.5</span><span class="p">)</span>
+    <span class="fn">voice</span><span class="p">(</span><span class="s">"Злорадная фраза о падении босса, ≤80 знаков."</span><span class="p">)</span>
+<span class="k">end</span><span class="p">)</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"player_died"</span>, <span class="k">func</span><span class="p">()</span>
+    <span class="fn">chat_error</span><span class="p">(</span><span class="s">"КОНЕЦ. Убийств: "</span> .. <span class="fn">str</span><span class="p">(</span><span class="v">kills</span><span class="p">))</span>
+    <span class="fn">save</span><span class="p">()</span>
+<span class="k">end</span><span class="p">)</span>
+
+<span class="fn">on</span><span class="p">(</span><span class="s">"net_response"</span>, <span class="k">func</span><span class="p">(</span><span class="v">rid</span>, <span class="v">code</span>, <span class="v">body</span><span class="p">)</span>
+    <span class="k">if</span> <span class="v">code</span> != <span class="n">200</span> <span class="k">then</span>
+        <span class="fn">chat_error</span><span class="p">(</span><span class="s">"HTTP "</span> .. <span class="fn">str</span><span class="p">(</span><span class="v">code</span><span class="p">))</span>
+    <span class="k">end</span>
+<span class="k">end</span><span class="p">)</span>
+
+<span class="v">on_unload</span> = <span class="k">func</span><span class="p">()</span>
+    <span class="fn">save</span><span class="p">()</span>
+    <span class="fn">chat_log</span><span class="p">(</span><span class="s">"Мод выгружен. Убийств: "</span> .. <span class="fn">str</span><span class="p">(</span><span class="v">kills</span><span class="p">))</span>
+<span class="k">end</span></pre>
+  </div>
+</section>
+
+<!-- ── БЕЗОПАСНОСТЬ ────────────────────────────────── -->
+<section id="security">
+  <div class="section-header">
+    <span class="section-num">22</span>
+    <h2 class="section-title">Безопасность и песочница</h2>
+  </div>
+
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-icon orange">🔒</div>
+      <div class="card-title">Файловая изоляция</div>
+      <div class="card-desc"><code>file_*</code> работает только внутри <code>user://mods/&lt;uuid&gt;/data/</code>. Пути <code>../</code> и абсолютные пути автоматически отбрасываются.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon orange">🌐</div>
+      <div class="card-title">Сетевые разрешения</div>
+      <div class="card-desc">HTTP-запросы и AI доступны только если в <code>mod.json</code> указано <code>"permissions": {"network": true}</code>.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon orange">🔑</div>
+      <div class="card-title">Ключи API</div>
+      <div class="card-desc">Ключ OpenRouter хранится в <code>user://settings/api_keys.cfg</code> и никогда не попадает в репозиторий. Не логируйте результат <code>api_key()</code>!</div>
+    </div>
+    <div class="card">
+      <div class="card-icon orange">🚫</div>
+      <div class="card-title">Нет системного доступа</div>
+      <div class="card-desc">Скрипты не имеют доступа к произвольным файлам ОС, процессам или сети за пределами заявленного.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ОШИБКИ ──────────────────────────────────────── -->
+<section id="errors">
+  <div class="section-header">
+    <span class="section-num">23</span>
+    <h2 class="section-title">Ошибки и отладка</h2>
+  </div>
+
+  <table class="api-table">
+    <tr><th>Проблема</th><th>Причина</th><th>Решение</th></tr>
+    <tr><td>Мод не импортируется</td><td>mod.json в подпапке или невалидный JSON</td><td>Паковать из папки мода: <code>cd my_mod && zip -r ../my_mod.retrovert mod.json scripts/</code></td></tr>
+    <tr><td>Иконка не отображается</td><td>Путь в поле icon не совпадает с архивом</td><td>Убедитесь: <code>"icon": "icon.png"</code> и файл <code>icon.png</code> в корне архива</td></tr>
+    <tr><td>Ошибка парсинга .rrs</td><td>Синтаксическая ошибка в скрипте</td><td>Открыть чат в игре — ошибки отображаются красным</td></tr>
+    <tr><td>HTTP возвращает -1</td><td>Нет <code>permissions.network</code> или ключа</td><td>Добавить в mod.json и проверить ключ через <code>api_has_key()</code></td></tr>
+    <tr><td>file_write не работает</td><td>Нет <code>permissions.files</code></td><td>Добавить <code>"files": true</code> в <code>permissions</code></td></tr>
+    <tr><td>player() возвращает nil</td><td>Игрок ещё не заспавнился</td><td>Всегда проверяйте: <code>if p != nil then</code></td></tr>
+    <tr><td>on_tick лагает игру</td><td>Тяжёлые операции каждый кадр</td><td>Используйте таймеры: накапливайте delta, действуйте раз в N секунд</td></tr>
+    <tr><td>item() не работает</td><td>Вызов вне on_load</td><td>Все <code>item()</code> вызывайте только внутри <code>on_load</code></td></tr>
+  </table>
+
+  <div class="note teal">
+    <span class="note-icon">💡</span>
+    <strong>Главный инструмент отладки:</strong> <code>chat_log(str(my_variable))</code> — выводит значение прямо в игровой чат. Все ошибки парсинга и рантайма тоже там появляются.
+  </div>
+</section>
+
+<!-- ── FAQ ────────────────────────────────────────── -->
+<section id="faq">
+  <div class="section-header">
+    <span class="section-num">24</span>
+    <h2 class="section-title">FAQ</h2>
+  </div>
+
+  <div class="recipe" onclick="toggleRecipe(this)">
+    <div class="recipe-header">
+      <div class="recipe-num">?</div>
+      <div class="recipe-title">Можно ли управлять камерой (позиция, зум)?</div>
+      <div class="recipe-arrow">▶</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-body-inner">
+        <p class="recipe-desc">Нет. RatScript предоставляет только <code>shake(strength, duration)</code>. Позиционирование и зум камеры — внутренний уровень движка Godot. Единственный способ влиять на камеру — тряска.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe" onclick="toggleRecipe(this)">
+    <div class="recipe-header">
+      <div class="recipe-num">?</div>
+      <div class="recipe-title">Можно ли задать врагу кастомный AI/патфайндинг?</div>
+      <div class="recipe-arrow">▶</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-body-inner">
+        <p class="recipe-desc">Нет. <code>spawn()</code> создаёт готовые сцены врагов, которые содержат <strong>встроенный AI с NavMesh-навигацией</strong>. Мод управляет только позицией спавна и типом врага. После появления враг сам найдёт игрока. Кастомный per-frame AI из RatScript написать невозможно.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe" onclick="toggleRecipe(this)">
+    <div class="recipe-header">
+      <div class="recipe-num">?</div>
+      <div class="recipe-title">Как включить несколько модов одновременно?</div>
+      <div class="recipe-arrow">▶</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-body-inner">
+        <p class="recipe-desc">Все активные моды работают одновременно. Каждый мод получает свои подписки на EventBus. Конфликты возможны если два мода устанавливают одинаковый <code>item.id</code> — убедитесь что id уникальны.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe" onclick="toggleRecipe(this)">
+    <div class="recipe-header">
+      <div class="recipe-num">?</div>
+      <div class="recipe-title">Поддерживаются ли многострочные комментарии?</div>
+      <div class="recipe-arrow">▶</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-body-inner">
+        <p class="recipe-desc">Нет. Только однострочные комментарии через <code>--</code>. Для блока комментариев комментируйте каждую строку.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe" onclick="toggleRecipe(this)">
+    <div class="recipe-header">
+      <div class="recipe-num">?</div>
+      <div class="recipe-title">Как разделить код на несколько файлов?</div>
+      <div class="recipe-arrow">▶</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-body-inner">
+        <p class="recipe-desc">Документация упоминает функцию <code>include(...)</code> для подгрузки дополнительных <code>.rrs</code> файлов. Пример: <code>include("scripts/utils.rrs")</code>. Основной файл указывается в поле <code>entry</code> манифеста.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe" onclick="toggleRecipe(this)">
+    <div class="recipe-header">
+      <div class="recipe-num">?</div>
+      <div class="recipe-title">Какие модели AI доступны через ai_chat?</div>
+      <div class="recipe-arrow">▶</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-body-inner">
+        <p class="recipe-desc">Любые модели из OpenRouter. Фоллбэк без указания модели — <code>google/gemma-3-12b-it:free</code>. Пример: <code>ai_chat(prompt, "anthropic/claude-3-haiku")</code>. Полный список: <a href="https://openrouter.ai/models" target="_blank">openrouter.ai/models</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ──────────────────────────────────────── -->
+<footer class="footer">
+  <div class="footer-logo">🐀 RatRovert Modding</div>
+  <div class="footer-text">Полное руководство по RatScript и API модинга · v1.0</div>
+</footer>
+
+</div><!-- /main-content -->
+</div><!-- /layout -->
+
+<script>
+// ══════════════════════════════════════════════
+// HAMBURGER / SIDEBAR
+// ══════════════════════════════════════════════
+const hamburger = document.getElementById('hamburger');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebar-overlay');
+
+function closeSidebar(){
+  sidebar.classList.remove('open');
+  overlay.classList.remove('open');
+  hamburger.classList.remove('open');
+}
+hamburger.addEventListener('click',()=>{
+  const open = sidebar.classList.toggle('open');
+  overlay.classList.toggle('open', open);
+  hamburger.classList.toggle('open', open);
+});
+overlay.addEventListener('click', closeSidebar);
+
+// Close sidebar on nav link click (mobile)
+document.querySelectorAll('.nav-link').forEach(l=>{
+  l.addEventListener('click',()=>{
+    if(window.innerWidth<=900) closeSidebar();
+  });
+});
+
+// ══════════════════════════════════════════════
+// ACTIVE NAV LINK (Intersection Observer)
+// ══════════════════════════════════════════════
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navLinks.forEach(l=>l.classList.remove('active'));
+      const active = document.querySelector('.nav-link[href="#'+e.target.id+'"]');
+      if(active){
+        active.classList.add('active');
+        active.scrollIntoView({block:'nearest'});
+      }
+    }
+  });
+},{threshold:0.2, rootMargin:'-80px 0px -60% 0px'});
+sections.forEach(s=>observer.observe(s));
+
+// ══════════════════════════════════════════════
+// COPY CODE
+// ══════════════════════════════════════════════
+function copyCode(btn){
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✓ Скопировано';
+    btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Копировать';btn.classList.remove('copied');},2000);
+  });
+}
+
+// ══════════════════════════════════════════════
+// RECIPE ACCORDION
+// ══════════════════════════════════════════════
+function toggleRecipe(el){
+  el.classList.toggle('open');
+}
+
+// ══════════════════════════════════════════════
+// SEARCH
+// ══════════════════════════════════════════════
+const searchInput = document.getElementById('search-input');
+let lastMarks = [];
+
+searchInput.addEventListener('input',()=>{
+  const q = searchInput.value.trim().toLowerCase();
+
+  // Remove old marks
+  lastMarks.forEach(m=>{
+    const parent = m.parentNode;
+    parent.replaceChild(document.createTextNode(m.textContent), m);
+    parent.normalize();
+  });
+  lastMarks = [];
+
+  if(q.length < 2){
+    navLinks.forEach(l=>l.style.display='');
+    return;
+  }
+
+  // Filter nav links
+  navLinks.forEach(l=>{
+    const text = l.textContent.toLowerCase();
+    l.style.display = text.includes(q) ? '' : 'none';
+  });
+
+  // Highlight in content
+  function walkText(node){
+    if(node.nodeType===3){
+      const val = node.nodeValue;
+      const idx = val.toLowerCase().indexOf(q);
+      if(idx>=0){
+        const mark = document.createElement('mark');
+        mark.textContent = val.substring(idx, idx+q.length);
+        const after = document.createTextNode(val.substring(idx+q.length));
+        const before = document.createTextNode(val.substring(0, idx));
+        node.parentNode.insertBefore(before, node);
+        node.parentNode.insertBefore(mark, node);
+        node.parentNode.insertBefore(after, node);
+        node.parentNode.removeChild(node);
+        lastMarks.push(mark);
+      }
+    } else if(node.nodeType===1 &&
+      !['SCRIPT','STYLE','PRE','CODE','INPUT','BUTTON'].includes(node.tagName)){
+      Array.from(node.childNodes).forEach(walkText);
+    }
+  }
+  document.querySelectorAll('section p, section td, section .card-desc, section .step-desc').forEach(el=>{
+    walkText(el);
+  });
+});
+
+// ══════════════════════════════════════════════
+// CALCULATOR
+// ══════════════════════════════════════════════
+function syncSlider(id){
+  const inp = document.getElementById('in-'+id);
+  const sl  = document.getElementById('sl-'+id);
+  sl.value  = inp.value;
+  updateCalc();
+}
+
+function gv(id){ return parseFloat(document.getElementById('sl-'+id).value)||0; }
+
+function updateCalc(){
+  // Sync inputs from sliders
+  ['dmg','rate','speed','range','luck','bdmg','brate','bspeed','brange','bluck'].forEach(id=>{
+    const sl = document.getElementById('sl-'+id);
+    const inp = document.getElementById('in-'+id);
+    if(sl && inp) inp.value = sl.value;
+  });
+
+  const dmg   = gv('dmg');
+  const rate  = gv('rate');
+  const speed = gv('speed');
+  const rng   = gv('range');
+  const luck  = gv('luck');
+
+  const bdmg   = gv('bdmg');
+  const brate  = gv('brate');
+  const bspeed = gv('bspeed');
+  const brange = gv('brange');
+  const bluck  = gv('bluck');
+
+  const rdmg   = dmg + bdmg;
+  const rrate  = rate + rate * brate;
+  const rspeed = speed + speed * bspeed;
+  const rrng   = rng + rng * brange;
+  const rluck  = luck + bluck;
+  const dps    = rdmg * rrate;
+
+  function fmt(v){ return Math.round(v*100)/100; }
+
+  document.getElementById('r-dmg').textContent   = fmt(rdmg);
+  document.getElementById('r-rate').textContent  = fmt(rrate) + ' / сек';
+  document.getElementById('r-speed').textContent = fmt(rspeed);
+  document.getElementById('r-range').textContent = fmt(rrng) + ' px';
+  document.getElementById('r-luck').textContent  = fmt(rluck);
+  document.getElementById('r-dps').textContent   = fmt(dps);
+
+  // Color DPS
+  const dpsEl = document.getElementById('r-dps');
+  dpsEl.className = 'calc-result-val ' + (dps > 15 ? 'high' : dps > 7 ? 'mid' : '');
+
+  // Code snippet
+  let parts = [];
+  if(bdmg)   parts.push('player_damage = ' + fmt(bdmg));
+  if(brate)  parts.push('tear_rate = ' + fmt(brate));
+  if(bspeed) parts.push('tear_speed = ' + fmt(bspeed));
+  if(brange) parts.push('tear_range = ' + fmt(brange));
+  if(bluck)  parts.push('luck = ' + fmt(bluck));
+  document.getElementById('r-code').textContent = parts.length
+    ? '{ ' + parts.join(', ') + ' }'
+    : '{ }';
+}
+
+updateCalc();
+</script>
+</body>
+</html>

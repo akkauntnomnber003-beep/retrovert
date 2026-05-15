@@ -1,0 +1,11 @@
+{
+  "id": "coin_doubler",
+  "name": "Coin Doubler",
+  "version": "1.0.0",
+  "author": "RatRovert Team",
+  "description": "Удваивает каждую подобранную монету и добавляет +50 монет в начале забега.",
+  "entry": "scripts/main.rrs",
+  "tags": ["fun", "qol", "economy"],
+  "dependencies": [],
+  "uuid": ""
+}
